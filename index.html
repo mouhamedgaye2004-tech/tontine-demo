@@ -3,16 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tontine digitale, Dakar</title>
+<title>Tontine de Dakar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* ===== Palette : 4 couleurs unies ===== */
+/* ===== Palette : 4 couleurs unies, aucun dégradé ===== */
 :root{
   --papier:#F0F2E3; --encre:#14201A; --ocre:#E8B21C; --rouge:#C2262E;
   --sur-ocre:#14201A; --sur-rouge:#FFFFFF;
-  /* carreaux de cahier : tuile SVG, aucun dégradé */
   --grid:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 .5h24M.5 0v24' stroke='%2314201A' stroke-opacity='.13' fill='none'/%3E%3C/svg%3E");
   --f-titre:'Bricolage Grotesque','Arial Black',sans-serif;
   --f-texte:'Atkinson Hyperlegible','Trebuchet MS',sans-serif;
@@ -27,377 +26,514 @@
   --papier:#14201A; --encre:#EEF0E0; --rouge:#F0646A; --sur-rouge:#14201A;
   --grid:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M0 .5h24M.5 0v24' stroke='%23EEF0E0' stroke-opacity='.09' fill='none'/%3E%3C/svg%3E");
 }
-
 *{box-sizing:border-box;margin:0}
-:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
-body{background:var(--papier);color:var(--encre);font:400 18px/1.45 var(--f-texte);min-height:100%;font-variant-numeric:tabular-nums}
+:root{padding-top:env(safe-area-inset-top,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
+body{background:var(--papier);color:var(--encre);font:400 20px/1.4 var(--f-texte);font-variant-numeric:tabular-nums}
 button,input{font:inherit;color:inherit}
-svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;flex:none}
+h1,h2{font-family:var(--f-titre);font-weight:800;letter-spacing:-.02em;line-height:1}
+h1{font-size:44px} h2{font-size:28px}
+.fin{font-size:16px}
+.ic{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;flex:none}
+.ic.g{width:34px;height:34px}
 
-/* ===== Page = une feuille de cahier avec marge rouge ===== */
-.page{max-width:430px;min-height:100vh;margin:0 auto;background:var(--papier) var(--grid);border-inline:2px solid var(--encre);position:relative;display:flex;flex-direction:column}
-.page::before{content:"";position:absolute;inset:0 auto 0 44px;width:2px;background:var(--rouge);pointer-events:none}
-main{flex:1;padding-bottom:96px}
-.m{padding-left:62px;padding-right:18px} /* contenu à droite de la marge */
-
-h1,h2,.nom{font-family:var(--f-titre);font-weight:800;letter-spacing:-.02em;line-height:.98}
-h1{font-size:44px}
-h2{font-size:26px}
-.fin{font-size:15px}
-
-.mast{padding-top:22px;padding-bottom:16px;border-bottom:2px solid var(--encre);background:var(--papier)}
-.mast .ligne{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-.mast p{margin-top:8px}
-.bascule{border:2px solid var(--encre);background:transparent;padding:4px 10px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+/* ===== Feuille de cahier : marge rouge à gauche, rangs dans la marge ===== */
+.col{max-width:480px;margin:0 auto;min-height:100vh;background:var(--papier) var(--grid);border-inline:2px solid var(--encre);position:relative;padding-bottom:120px}
+.col::before{content:"";position:absolute;inset:0 auto 0 44px;width:2px;background:var(--rouge);pointer-events:none}
+.m{padding:0 18px 0 62px;max-width:720px}
+.haut{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--papier);border-bottom:2px solid var(--encre);display:flex;align-items:center;gap:10px;padding:8px 12px 8px 0;min-height:64px}
+.haut .gauche{width:44px;display:grid;place-items:center;flex:none}
+.haut .tt{flex:1;min-width:0;padding-left:16px;line-height:1.1}
+.haut .tt b{font:800 22px var(--f-titre);display:block}
+.haut .tt small{font-size:15px}
+.ib{border:0;background:transparent;width:44px;height:44px;display:grid;place-items:center;cursor:pointer}
+.bascule{border:2px solid var(--encre);background:transparent;padding:6px 12px;font-weight:700;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:44px;white-space:nowrap}
+.bascule:hover,.ib:hover{background:var(--ocre);color:var(--sur-ocre)}
 .bascule[aria-pressed="true"]{background:var(--encre);color:var(--papier)}
-.bascule:focus-visible,.btn:focus-visible,.tab:focus-visible,.choix label:focus-within{outline:3px solid var(--rouge);outline-offset:2px}
+:is(.bascule,.btn,.tab,.ib,.pave button,.choix button,.row.lien):focus-visible{outline:3px solid var(--rouge);outline-offset:2px}
 
-/* ===== Bloc bénéficiaire ===== */
-.tour{margin:22px 18px 0 62px;border:2px solid var(--encre);background:var(--ocre);color:var(--sur-ocre);padding:16px 16px 14px}
-.tour .nom{font-size:56px;margin:6px 0 8px}
-.cases{display:flex;gap:4px;margin-top:12px}
-.cases i{flex:1;height:14px;border:2px solid var(--sur-ocre);display:block}
-.cases i.on{background:var(--sur-ocre)}
-
-.tdb{display:grid;grid-template-columns:repeat(3,1fr);margin-top:16px;border:2px solid var(--encre);background:var(--papier)}
-.tdb div{padding:8px 10px;border-right:2px solid var(--encre);font-size:14px}
-.tdb div:last-child{border-right:0}
-.tdb b{display:block;font:800 30px var(--f-titre)}
-.tdb .alerte{background:var(--rouge);color:var(--sur-rouge)}
 /* ===== Boutons ===== */
-.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:2px solid var(--encre);background:var(--encre);color:var(--papier);padding:14px 16px;font-weight:700;cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:62px;border:2px solid var(--encre);background:var(--encre);color:var(--papier);padding:12px 16px;font-weight:700;font-size:20px;cursor:pointer;text-decoration:none;transition:transform .08s,box-shadow .08s}
 .btn:hover:not(:disabled){transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--rouge)}
 .btn:active:not(:disabled){transform:none;box-shadow:none}
 .btn.sec{background:var(--papier);color:var(--encre)}
+.btn.ocre{background:var(--ocre);color:var(--sur-ocre)}
 .btn:disabled{background:transparent;color:var(--encre);border-style:dashed;cursor:not-allowed}
-.pile{display:grid;gap:10px;margin-top:14px}
+.pile{display:grid;gap:12px;margin-top:16px}
+.duo2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+
+/* ===== Champs : lignes de cahier ===== */
+.champ{display:block;margin-top:24px}
+.champ>span{display:block;font-weight:700;margin-bottom:2px}
+.champ input{width:100%;background:transparent;border:0;border-bottom:3px solid var(--encre);border-radius:0;padding:8px 6px 6px;font:700 28px var(--f-titre);outline:none;min-height:54px}
+.champ input:hover{border-bottom-color:var(--rouge)}
+.champ input:focus{background:var(--ocre);color:var(--sur-ocre);border-bottom-color:var(--sur-ocre)}
+.tel{display:flex;align-items:flex-end;gap:8px}
+.tel b{font:800 28px var(--f-titre);padding-bottom:8px}
+.choix{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.choix button{border:2px solid var(--encre);background:transparent;padding:10px 14px;font-weight:700;cursor:pointer;min-height:52px}
+.choix button:hover{background:var(--ocre);color:var(--sur-ocre)}
+.choix button[aria-pressed="true"]{background:var(--encre);color:var(--papier)}
+.err{color:var(--rouge);font-weight:700;margin-top:12px;min-height:1.4em}
+.boites{display:flex;gap:10px;margin-top:16px}
+.boites i{flex:1;height:68px;border:2px solid var(--encre);display:grid;place-items:center;font:800 36px var(--f-titre);font-style:normal}
+.boites i.on{background:var(--ocre);color:var(--sur-ocre)}
+.pave{display:grid;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--encre);border-left:2px solid var(--encre);margin-top:14px;background:var(--papier)}
+.pave button{min-height:68px;border:0;border-right:2px solid var(--encre);border-bottom:2px solid var(--encre);background:transparent;font:800 30px var(--f-titre);cursor:pointer;display:grid;place-items:center}
+.pave button:hover{background:var(--ocre);color:var(--sur-ocre)}
 
 /* ===== Lignes de registre ===== */
-.titre-liste{padding-top:26px;padding-bottom:8px}
-.row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;border-top:1px solid var(--encre);min-height:56px;background:var(--papier)}
+.row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;border-top:1px solid var(--encre);min-height:68px;background:var(--papier);width:100%;text-align:left}
 .row:last-child{border-bottom:1px solid var(--encre)}
-.row .n{text-align:center;font-family:var(--f-titre);font-weight:800;font-size:20px}
-.row .c{padding:8px 12px 8px 18px}
-.row .c small{display:block;font-size:14px;opacity:.8}
-.row .d{padding-right:18px}
+.row .n{display:grid;place-items:center;font:800 22px var(--f-titre)}
+.row .c{padding:8px 12px 8px 18px;min-width:0}
+.row .c small{display:block;font-size:15px}
+.row .d{padding-right:14px;display:flex;gap:6px;align-items:center}
 .row.moi .c b{background:var(--ocre);color:var(--sur-ocre);padding:0 4px}
 .row.ben{border-top:2px solid var(--encre)}
-
-.st{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--encre);padding:2px 8px 2px 6px;font-weight:700;font-size:15px}
-.st .ic{width:16px;height:16px}
+.row.lien{border-left:0;border-right:0;border-bottom:0;cursor:pointer}
+.row.lien:hover{background:var(--ocre);color:var(--sur-ocre)}
+.titre{padding:26px 18px 10px 62px}
+.st{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--encre);padding:3px 9px 3px 6px;font-weight:700;font-size:16px;white-space:nowrap}
+.st .ic{width:18px;height:18px}
 .st.paye{background:var(--encre);color:var(--papier)}
 .st.cours{background:var(--ocre);color:var(--sur-ocre)}
 .st.attente{border-style:dashed}
 .st.echoue{background:var(--rouge);color:var(--sur-rouge);border-color:var(--rouge)}
 
-/* ===== Champs sur mesure : lignes de cahier ===== */
-.champ{display:block;margin-top:22px}
-.champ>span{display:block;font-weight:700;font-size:15px}
-.champ input[type=text],.champ input[type=tel],.champ input[type=password],.champ input[type=number]{
-  width:100%;background:transparent;border:0;border-bottom:3px solid var(--encre);border-radius:0;padding:8px 6px 6px;
-  font-family:var(--f-titre);font-weight:700;font-size:26px;outline:none}
-.champ input:hover{border-bottom-color:var(--rouge)}
-.champ input:focus{background:var(--ocre);color:var(--sur-ocre);border-bottom-color:var(--sur-ocre)}
-.tel{display:flex;align-items:flex-end;gap:8px}
-.tel b{font-family:var(--f-titre);font-size:26px;padding-bottom:6px}
-.choix{display:flex;margin-top:6px}
-.choix label{flex:1;border:2px solid var(--encre);margin-left:-2px;text-align:center;padding:9px 4px;font-weight:700;cursor:pointer;position:relative}
-.choix label:first-child{margin-left:0}
-.choix input{position:absolute;opacity:0;inset:0;cursor:pointer}
-.choix label:has(input:checked){background:var(--encre);color:var(--papier)}
-.err{color:var(--rouge);font-weight:700;margin-top:12px;min-height:1.4em}
-hr{border:0;border-top:2px solid var(--encre);margin:28px 0 0 -62px}
+/* ===== Blocs ===== */
+.tour,.inv{margin:18px 18px 0 62px;border:2px solid var(--encre);background:var(--ocre);color:var(--sur-ocre);padding:16px}
+.tour .nom{font:800 56px/1 var(--f-titre);letter-spacing:-.02em;margin:6px 0 8px}
+.cases{display:flex;gap:4px;margin-top:12px}
+.cases i{flex:1;height:14px;border:2px solid var(--sur-ocre);display:block}
+.cases i.on{background:var(--sur-ocre)}
+.tdb{display:grid;grid-template-columns:repeat(3,1fr);margin-top:16px;border:2px solid var(--encre);background:var(--papier)}
+.tdb div{padding:8px 10px;border-right:2px solid var(--encre);font-size:15px}
+.tdb div:last-child{border-right:0}
+.tdb b{display:block;font:800 32px var(--f-titre)}
+.tdb .alerte{background:var(--rouge);color:var(--sur-rouge)}
+.bl{margin:14px 18px 0 62px;border:2px solid var(--encre);background:var(--papier);padding:14px}
+.bl h2{font-size:24px;margin-bottom:6px}
+.avert{margin:14px 18px 0 62px;border:2px dashed var(--encre);padding:10px 12px;font-size:16px;background:var(--papier)}
+.prem{display:inline-flex;align-items:center;gap:4px;background:var(--ocre);color:var(--sur-ocre);border:2px solid var(--encre);padding:0 6px;font-size:14px;font-weight:700}
+.prem .ic{width:14px;height:14px}
+.cmp{display:grid;grid-template-columns:1fr 92px 112px;border-top:1px solid var(--encre);font-size:16px}
+.cmp>div{padding:8px 8px;border-bottom:1px solid var(--encre)}
+.cmp>div:nth-child(3n){background:var(--ocre);color:var(--sur-ocre)}
+.cmp .h{font-weight:800}
 
-/* ===== Barre d'onglets ===== */
-.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);display:grid;grid-template-columns:repeat(3,1fr);background:var(--papier);border-top:2px solid var(--encre);border-inline:2px solid var(--encre);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
-.tab{border:0;background:transparent;padding:10px 4px 9px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:700;font-size:14px;cursor:pointer;border-right:1px solid var(--encre)}
+/* ===== Navigation : onglets en bas ===== */
+.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);display:grid;grid-template-columns:repeat(3,1fr);background:var(--papier);border-top:2px solid var(--encre);border-inline:2px solid var(--encre);padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+.tab{border:0;border-right:1px solid var(--encre);background:transparent;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:700;font-size:15px;cursor:pointer;min-height:68px}
 .tab:last-child{border-right:0}
 .tab[aria-current="page"]{background:var(--encre);color:var(--papier)}
 .tab:hover:not([aria-current]){background:var(--ocre);color:var(--sur-ocre)}
 
-/* ===== Feuille de paiement et message ===== */
+/* ===== Feuille de dialogue et message ===== */
 .voile{position:fixed;inset:0;background:rgba(20,32,26,.72);z-index:10;display:flex;align-items:flex-end;justify-content:center}
-.feuille{width:min(430px,100%);background:var(--papier);border:2px solid var(--encre);border-bottom:0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px))}
-.op{display:grid;grid-template-columns:44px 1fr;border:2px solid var(--encre);background:var(--papier);width:100%;text-align:left;cursor:pointer;margin-top:10px;padding:0}
+.feuille{width:min(480px,100%);max-height:92vh;overflow:auto;background:var(--papier);border:2px solid var(--encre);border-bottom:0;padding:20px 18px calc(22px + env(safe-area-inset-bottom,0px))}
+.op{display:grid;grid-template-columns:56px 1fr;border:2px solid var(--encre);background:var(--papier);width:100%;text-align:left;cursor:pointer;margin-top:10px;padding:0;min-height:68px}
 .op:hover{background:var(--ocre);color:var(--sur-ocre)}
 .op:focus-visible{outline:3px solid var(--rouge);outline-offset:2px}
-.op i{display:grid;place-items:center;background:var(--encre);color:var(--papier);font:800 22px var(--f-titre);font-style:normal}
-.op span{padding:10px 14px;font-weight:700}
-.op small{display:block;font-weight:400}
-.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(394px,calc(100% - 32px));background:var(--encre);color:var(--papier);border-left:8px solid var(--ocre);padding:10px 14px;font-weight:700;z-index:20}
+.op i{display:grid;place-items:center;background:var(--encre);color:var(--papier);font:800 26px var(--f-titre);font-style:normal}
+.op span{padding:10px 14px;font-weight:700;align-self:center}
+.recu dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:14px 0;border-top:2px solid var(--encre);border-bottom:2px solid var(--encre);padding:12px 0}
+.recu dt{font-weight:700} .recu dd{margin:0;text-align:right}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(440px,calc(100% - 32px));background:var(--encre);color:var(--papier);border-left:8px solid var(--ocre);padding:12px 14px;font-weight:700;z-index:20}
 .toast[hidden]{display:none}
-/* ===== Ordinateur : la feuille occupe tout l'écran ===== */
+
+/* ===== Ordinateur : la feuille occupe tout l'écran, deux colonnes ===== */
 @media (min-width:900px){
-  body{font-size:20px}
-  .page{max-width:none;border-inline:0}
-  main>*{max-width:1000px}
+  .col{max-width:none;border-inline:0}
+  .tabs{width:100%;left:0;transform:none;border-inline:0;grid-template-columns:repeat(3,220px);justify-content:start}
+  .duo{display:grid;grid-template-columns:minmax(380px,5fr) 6fr;gap:0 28px;align-items:start}
   h1{font-size:64px}
-  h2{font-size:32px}
-  .tour .nom{font-size:84px}
-  .tdb b{font-size:40px}
-  .row{min-height:64px}
-  .tabs{width:100%;left:0;transform:none;border-inline:0;grid-template-columns:repeat(3,200px);justify-content:start}
+  .tour .nom{font-size:72px}
   .toast{bottom:96px}
 }
+@media (max-width:430px){.col,.tabs{border-inline:0}}
 @media (prefers-reduced-motion:reduce){.btn{transition:none}}
-@media (max-width:430px){.page{border-inline:0}.tabs{border-inline:0}}
 </style>
 </head>
 <body>
-<div class="page"><div id="app"></div></div>
+<div id="app"></div>
 <div id="toast" class="toast" role="status" hidden></div>
-
 <script>
-/* ===== Données de démonstration (le paiement est simulé) ===== */
+/* ===== Outils ===== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const F = n => Number(n).toLocaleString('fr-FR') + '\u00a0F';
+const auj = () => new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
 const ICONES = {
-  check:'<path d="M4 12l5 5L20 6"/>',
-  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>',
-  dash:'<circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/>',
-  cross:'<path d="M6 6l12 12M18 6L6 18"/>',
-  tour:'<path d="M4 12a8 8 0 1 1 3 6.2"/><path d="M4 19v-6h6"/>',
-  registre:'<path d="M5 4h14v16H5z"/><path d="M9 9h7M9 13h7M9 17h4"/>',
-  groupe:'<path d="M4 4h16v16H4z"/><path d="M12 8v8M8 12h8"/>',
-  voix:'<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9a4 4 0 0 1 0 6"/>',
-  envoi:'<path d="M4 12h15M13 6l6 6-6 6"/>'
+  check:'<path d="M4 12l5 5L20 6"/>', cross:'<path d="M6 6l12 12M18 6L6 18"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>', dash:'<circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/>',
+  voix:'<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9a4 4 0 0 1 0 6"/>', envoi:'<path d="M4 12h15M13 6l6 6-6 6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', retour:'<path d="M20 12H5M11 6l-6 6 6 6"/>',
+  maison:'<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/>',
+  pousse:'<path d="M12 21v-9"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 15c0-3-2-5-6-5 0 3 2 5 6 5z"/>',
+  etoile:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  cadenas:'<path d="M6 11h12v9H6z"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  partage:'<path d="M5 12v7h14v-7"/><path d="M12 15V4M8 8l4-4 4 4"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  pieces:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',
+  eff:'<path d="M9 5h11v14H9L3 12z"/><path d="M12 9l5 6M17 9l-5 6"/>', tour:'<path d="M4 12a8 8 0 1 1 3 6.2"/><path d="M4 19v-6h6"/>'
 };
-const ic = n => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONES[n]}</svg>`;
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const F = n => n.toLocaleString('fr-FR') + '\u00a0F';
+const ic = (n,c='') => `<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONES[n]}</svg>`;
+const LIB = {paye:['Payé','check'],cours:['En cours','clock'],attente:['À payer','dash'],echoue:['Échoué','cross']};
+const FREQ = {jour:'chaque jour',semaine:'chaque semaine',quinzaine:'tous les 15 jours',mois:'chaque mois'};
+const QUARTIERS = ['Médina','Pikine','Parcelles','Yoff','Grand Yoff','Almadies','Guédiawaye','Autre'];
+/* Exemples fictifs, uniquement pour la démonstration */
+const INVEST = [
+  {id:'v1',nom:'Boutique de quartier, Pikine',ticket:25000,objectif:1500000,places:20,pris:12,ouvert:'tous'},
+  {id:'v2',nom:'Achat groupé de mil, Kaolack',ticket:10000,objectif:400000,places:30,pris:18,ouvert:'particuliers'},
+  {id:'v3',nom:'Fonds artisans, Médina',ticket:50000,objectif:3000000,places:15,pris:7,ouvert:'investisseurs'}
+];
+const OUV = {tous:'Particuliers et investisseurs',particuliers:'Particuliers',investisseurs:'Investisseurs'};
+const LIM = {tontines:2, gratuit:12, premium:40};
 
-const S = {
-  ecran:'login', onglet:'tour', admin:false, feuille:false, envoye:false, erreur:'',
-  moi:'Awa', rappel:{canal:'push',quand:'veille'}, graine:null,
-  groupe:{nom:'Tontine des Parcelles', montant:5000, freq:'semaine', ordre:'tirage', tour:4},
-  /* l'ordre du tableau = l'ordre des tours */
-  membres:[
-    {nom:'Fatou',st:'paye',admin:true},{nom:'Moussa',st:'paye'},{nom:'Mariama',st:'paye'},
-    {nom:'Khady',st:'paye'},{nom:'Awa',st:'attente'},{nom:'Ousmane',st:'cours'},
-    {nom:'Ibrahima',st:'echoue',retard:2},{nom:'Aminata',st:'paye'}
-  ],
-  histo:[
-    {t:4,txt:'Aminata a payé 5\u00a0000\u00a0F',op:'Wave',d:'lun. 16'},
-    {t:4,txt:'Mariama a payé 5\u00a0000\u00a0F',op:'Orange Money',d:'lun. 16'},
-    {t:4,txt:'Le paiement d’Ibrahima a échoué',op:'Orange Money',d:'dim. 15'},
-    {t:3,txt:'Mariama a reçu 40\u00a0000\u00a0F',op:'',d:'lun. 9'},
-    {t:2,txt:'Moussa a reçu 40\u00a0000\u00a0F',op:'',d:'lun. 2'}
-  ]
-};
-const LIB = {paye:['Payé','check'],cours:['En cours','clock'],attente:['En attente','dash'],echoue:['Échoué','cross']};
-const FREQ = {jour:'chaque jour',semaine:'chaque semaine',quinzaine:'toutes les deux semaines',mois:'chaque mois'};
-const benef = () => S.membres[S.groupe.tour - 1];
-const cagnotte = () => S.groupe.montant * S.membres.length;
-const nbPayes = () => S.membres.filter(m => m.st === 'paye').length;
-const moi = () => S.membres.find(m => m.nom === S.moi);
+/* ===== État, enregistré sur cet appareil (localStorage) ===== */
+const KEY = 'tontine-cahier-v1';
+const NEUF = {ecran:'accueil',etape:1,tmp:{},comptes:{},donnees:{},tel:null,onglet:'tontines',vue:'liste',gid:null,admin:false,erreur:'',saisie:'',creerType:'tontine'};
+let S; try{ S = Object.assign({}, NEUF, JSON.parse(localStorage.getItem(KEY) || '{}')); }catch(e){ S = Object.assign({}, NEUF); }
+if (S.tel && !S.comptes[S.tel]) S.ecran = 'accueil';
+const UI = {feuille:null};
+let LECT = '';
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
+const user = () => S.comptes[S.tel];
+const D = () => S.donnees[S.tel];
+const G = () => D().groupes.find(g => g.id === S.gid);
 
-/* ===== Message court ===== */
-let tt;
-function toast(t){const e=document.getElementById('toast');e.textContent=t;e.hidden=false;clearTimeout(tt);tt=setTimeout(()=>e.hidden=true,3200)}
-
-/* ===== Écrans ===== */
-function vueLogin(){
-  return `<main>
-    <div class="mast m"><h1>Tontine<br>de Dakar</h1>
-      <p>Qui a payé, à qui est le tour, ce qu’il reste à verser : tout le groupe voit la même page.</p></div>
-    <form class="m" id="f-login" novalidate>
-      <label class="champ"><span>Numéro de téléphone</span>
-        <div class="tel"><b>+221</b><input type="tel" id="tel" inputmode="numeric" autocomplete="tel-national" maxlength="12" placeholder="77 123 45 67"></div></label>
-      <label class="champ"><span>Code secret à 4 chiffres</span>
-        <input type="password" id="pin" inputmode="numeric" maxlength="4" autocomplete="current-password" placeholder="••••"></label>
-      <p class="err" role="alert">${esc(S.erreur)}</p>
-      <button class="btn" type="submit">Ouvrir mon cahier</button>
-      <p class="fin" style="margin-top:14px">Démonstration : tout numéro à 9 chiffres et tout code à 4 chiffres fonctionnent.</p>
-    </form></main>`;
+function demoGroupe(p){
+  const n = ['Fatou','Moussa','Mariama','Khady',p,'Ousmane','Ibrahima','Aminata'], st = ['paye','paye','paye','paye','attente','cours','echoue','paye'];
+  return {id:'g'+Date.now(),type:'tontine',nom:'Tontine des Parcelles',montant:5000,freq:'semaine',ordre:'tirage',tour:4,graine:null,envoye:false,rappel:'push',
+    membres:n.map((x,i)=>({nom:x,st:st[i],admin:i===0,moi:i===4,retard:i===6?2:0})),
+    histo:[{t:3,txt:'Mariama a reçu 40\u00a0000\u00a0F',op:'',d:'lun. 9 nov.'},{t:2,txt:'Moussa a reçu 40\u00a0000\u00a0F',op:'',d:'lun. 2 nov.'}]};
 }
-
-function ligneMembre(m,i){
-  const [lib,ico] = LIB[m.st];
-  const estB = i === S.groupe.tour - 1;
-  return `<div class="row${m.nom===S.moi?' moi':''}${estB?' ben':''}">
-    <div class="n">${i+1}</div>
-    <div class="c"><b>${esc(m.nom)}</b>${m.admin?'<small>Administratrice</small>':''}${estB?'<small>Reçoit ce tour</small>':''}${m.retard&&m.st!=='paye'?`<small>${m.retard} jours de retard</small>`:''}</div>
-    <div class="d"><span class="st ${m.st}">${ic(ico)}${lib}</span></div></div>`;
+function toast(t){ const e=$('toast'); e.textContent=t; e.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>e.hidden=true,3400); }
+function lire(){
+  if (!('speechSynthesis' in window)) return toast('La lecture à voix haute n’est pas disponible sur cet appareil.');
+  speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(LECT); u.lang = 'fr-FR'; u.rate = .92; speechSynthesis.speak(u);
 }
+function premium(msg){ toast(msg + ' Fonction Premium : voir l’onglet Plus.'); S.onglet = 'plus'; render(); }
 
-function vueTour(){
-  const b = benef(), n = S.membres.length, p = nbPayes(), m = moi();
-  let bouton;
-  if (m.st === 'paye') bouton = `<button class="btn" disabled>${ic('check')}Ta cotisation est payée</button>`;
-  else if (m.st === 'cours') bouton = `<button class="btn" disabled>${ic('clock')}Paiement en cours chez l’opérateur</button>`;
-  else bouton = `<button class="btn" data-act="payer">Payer ma cotisation, ${F(S.groupe.montant)}</button>`;
-  let admin = ''; const nR=S.membres.filter(x=>x.st==='echoue').length, nA=S.membres.filter(x=>x.st==='attente'||x.st==='cours').length, imp=S.membres.filter(x=>x.st!=='paye').length;
-  if (S.admin){
-    admin = !S.envoye
-      ? `<button class="btn sec" data-act="envoyer" ${p<n?'disabled':''}>${ic('envoi')}Envoyer ${F(cagnotte())} à ${esc(b.nom)}</button>`
-      : `<button class="btn sec" data-act="recu">${esc(b.nom)} confirme la réception (démo)</button>`;
+/* ===== Composants ===== */
+const haut = (t, s, retour) => `<header class="haut"><div class="gauche">${retour?`<button class="ib" ${retour} aria-label="Retour">${ic('retour')}</button>`:ic('pieces')}</div>
+  <div class="tt"><b>${esc(t)}</b>${s?`<small>${esc(s)}</small>`:''}</div>
+  <button class="bascule" data-act="lire">${ic('voix')}Écouter</button></header>`;
+const choix = (ch, vals, cur) => `<div class="choix">${vals.map(([v,l])=>`<button type="button" data-act="set" data-ch="${ch}" data-v="${esc(v)}" aria-pressed="${String(cur)===String(v)}">${esc(l)}</button>`).join('')}</div>`;
+const boites = masque => `<div class="boites" aria-label="Code à 4 chiffres">${[0,1,2,3].map(i=>`<i class="${S.saisie[i]?'on':''}">${S.saisie[i]?(masque?'•':S.saisie[i]):''}</i>`).join('')}</div>`;
+const pave = () => `<div class="pave">${[1,2,3,4,5,6,7,8,9].map(k=>`<button type="button" data-act="touche" data-k="${k}">${k}</button>`).join('')}<span style="border-right:2px solid var(--encre);border-bottom:2px solid var(--encre)"></span><button type="button" data-act="touche" data-k="0">0</button><button type="button" data-act="touche" data-k="eff" aria-label="Effacer">${ic('eff','g')}</button></div>`;
+const champ = (lib, f, extra='') => `<label class="champ"><span>${lib}</span><input type="text" data-f="${f}" value="${esc(S.tmp[f]||'')}" ${extra}></label>`;
+const telChamp = (lib, f) => `<label class="champ"><span>${lib}</span><div class="tel"><b>+221</b><input type="tel" data-f="${f}" inputmode="numeric" maxlength="12" autocomplete="tel-national" placeholder="77 123 45 67" value="${esc(S.tmp[f]||'')}"></div></label>`;
+const err = () => `<p class="err" role="alert">${esc(S.erreur)}</p>`;
+
+/* ===== Écrans d'entrée ===== */
+function vAccueil(){
+  LECT = 'Bienvenue sur Tontine de Dakar. Appuie sur le grand bouton noir pour créer ton compte. Si tu as déjà un compte, appuie sur le bouton blanc.';
+  const lg = (c,n,ok) => `<div class="row"><div class="n">${c}</div><div class="c"><b>${n}</b></div><div class="d">${ok?`<button class="bascule" data-act="lire">${ic('voix')}Écouter</button><span class="st paye">${ic('check')}Choisi</span>`:'<span class="st attente">Bientôt</span>'}</div></div>`;
+  return `<div class="col">${haut('Tontine de Dakar')}
+    <div class="m"><h1 style="margin-top:28px">Ta tontine,<br>claire pour tous.</h1>
+    <p style="margin-top:14px">Qui a payé, à qui est le tour : tout le groupe voit la même page. Chaque écran se lit à voix haute.</p></div>
+    <div class="titre"><h2>Langue</h2></div>
+    ${lg('FR','Français',true)}${lg('WO','Wolof')}${lg('PU','Pulaar')}${lg('SE','Sereer')}
+    <p class="m fin" style="margin-top:8px">Wolof, pulaar et sereer arrivent avec des textes relus par des locuteurs.</p>
+    <div class="m"><div class="pile" style="margin-top:26px">
+      <button class="btn" data-act="vers" data-v="inscription">${ic('plus')}Créer mon compte</button>
+      <button class="btn sec" data-act="vers" data-v="connexion">${ic('user')}J’ai déjà un compte</button></div></div></div>`;
+}
+const RETOUR_ACC = 'data-act="vers" data-v="accueil"';
+function vInscription(){
+  const T = S.tmp;
+  if (S.etape === 1){
+    LECT = 'Crée ton compte. Écris ton prénom, ton nom et ton numéro de téléphone. Choisis ton quartier. Puis appuie sur le bouton noir.';
+    return `<div class="col">${haut('Créer mon compte','Étape 1 sur 3',RETOUR_ACC)}<div class="m">
+      ${champ('Prénom','prenom','autocomplete="given-name"')}${champ('Nom','nom','autocomplete="family-name"')}${telChamp('Numéro de téléphone','tel')}
+      <div class="champ"><span>Mon quartier</span>${choix('quartier',QUARTIERS.map(q=>[q,q]),T.quartier||'')}</div>
+      <div class="champ"><span>Je suis</span>${choix('profil',[['particulier','Un particulier'],['investisseur','Un investisseur']],T.profil||'particulier')}</div>
+      ${err()}<button class="btn" data-act="etape1">${ic('envoi')}Recevoir mon code SMS</button></div></div>`;
   }
-  return `<main>
-    <div class="mast m"><div class="ligne"><div><h2>${esc(S.groupe.nom)}</h2>
-      <p class="fin">Tour ${S.groupe.tour} sur ${n}, ${F(S.groupe.montant)} ${FREQ[S.groupe.freq]}</p></div>
-      <button class="bascule" data-act="vue" aria-pressed="${S.admin}">${S.admin?'Vue admin':'Vue membre'}</button></div></div>
-    <section class="tour" aria-live="polite">
-      <div>Ce tour revient à</div>
-      <div class="nom">${esc(b.nom)}</div>
-      <div><b>${F(cagnotte())}</b> à recevoir. ${p} personnes sur ${n} ont payé.</div>
-      <div class="cases" aria-hidden="true">${S.membres.map(x=>`<i class="${x.st==='paye'?'on':''}"></i>`).join('')}</div>
-    </section>
-    <div class="m"><div class="tdb" role="group" aria-label="Tableau de bord"><div><b>${nbPayes()}/${n}</b>payés</div><div class="${nR?'alerte':''}"><b>${nR}</b>en retard</div><div><b>${nA}</b>à payer</div></div><p class="fin" style="margin-top:8px">Collecté : ${F(nbPayes()*S.groupe.montant)} sur ${F(cagnotte())}</p><div class="pile">${bouton}
-      <button class="btn sec" data-act="ecouter">${ic('voix')}Écouter le point du jour</button>${admin}${S.admin&&imp?`<button class="btn sec" data-act="rappel">${ic('clock')}Rappeler les ${imp} retardataires</button>`:''}</div></div>
-    <div class="m titre-liste"><h2>Qui a payé</h2></div>
-    ${S.membres.map(ligneMembre).join('')}
-  </main>`;
+  if (S.etape === 2){
+    LECT = 'Un code à 4 chiffres a été envoyé par SMS. Tape-le avec les grands chiffres, puis appuie sur le bouton noir.';
+    return `<div class="col">${haut('Code reçu par SMS','Étape 2 sur 3','data-act="etape" data-v="1"')}<div class="m">
+      <p style="margin-top:20px">Code envoyé au <b>+221 ${esc(T.tel9)}</b>. Démonstration : tape 4 chiffres au choix.</p>
+      ${boites(false)}${pave()}${err()}<button class="btn" data-act="valider">${ic('check')}Valider mon code</button></div></div>`;
+  }
+  LECT = T.pin1 ? 'Retape ton code secret pour être sûr.' : 'Crée ton code secret à 4 chiffres. Tu l’utiliseras pour entrer. Ne le dis à personne.';
+  return `<div class="col">${haut(T.pin1?'Retape ton code secret':'Crée ton code secret','Étape 3 sur 3','data-act="etape" data-v="2"')}<div class="m">
+    <p style="margin-top:20px">${T.pin1?'Retape les mêmes 4 chiffres.':'Choisis 4 chiffres faciles à retenir, mais que personne ne devine.'}</p>
+    ${boites(true)}${pave()}${err()}<button class="btn" data-act="valider">${ic('check')}${T.pin1?'Créer mon compte':'Continuer'}</button></div></div>`;
+}
+function vConnexion(){
+  LECT = 'Écris ton numéro de téléphone, puis tape ton code secret à 4 chiffres.';
+  return `<div class="col">${haut('Me connecter','',RETOUR_ACC)}<div class="m">
+    ${telChamp('Numéro de téléphone','tel')}
+    <div class="champ"><span>Code secret</span></div>${boites(true)}${pave()}${err()}
+    <div class="pile"><button class="btn" data-act="valider">${ic('envoi')}Entrer</button>
+    <button class="btn sec" data-act="vers" data-v="inscription">Créer un compte</button></div></div></div>`;
 }
 
-function vueRegistre(){
-  return `<main><div class="mast m"><h1>Registre</h1><p>Chaque paiement est daté et gardé. Personne ne peut le contester.</p></div>
-    <div style="margin-top:22px">${S.histo.map(h=>`<div class="row"><div class="n">${h.t}</div>
-      <div class="c">${esc(h.txt)}${h.op?`<small>${esc(h.op)}</small>`:''}</div><div class="d fin">${esc(h.d)}</div></div>`).join('')}</div></main>`;
+/* ===== Application ===== */
+function vListe(){
+  const u = user(), d = D(), nT = d.groupes.filter(g=>g.type==='tontine').length;
+  LECT = `Bonjour ${u.prenom}. Tu as ${d.groupes.length} groupes et ${d.invits.length} invitations.`;
+  const inv = d.invits.map(i=>`<div class="inv"><b>${esc(i.de)} t’invite</b><p>${esc(i.nom)}, ${F(i.montant)} ${FREQ[i.freq]}, ${i.n} personnes</p>
+    <div class="duo2"><button class="btn" data-act="accepter" data-i="${i.id}">${ic('check')}Accepter</button><button class="btn sec" data-act="refuser" data-i="${i.id}">${ic('cross')}Refuser</button></div></div>`).join('');
+  const lignes = d.groupes.map(g=>{
+    const me = g.membres.find(x=>x.moi), [lib,ico] = LIB[me.st];
+    return `<button class="row lien" data-act="ouvrir" data-id="${g.id}"><div class="n">${ic(g.type==='invest'?'pousse':'pieces','g')}</div>
+      <div class="c"><b>${esc(g.nom)}</b><small>${g.type==='invest'?'Investissement, ':''}tour ${g.tour} sur ${g.membres.length}, ${F(g.montant)} ${FREQ[g.freq]}</small></div>
+      <div class="d"><span class="st ${me.st}">${ic(ico)}${lib}</span></div></button>`; }).join('');
+  const bloque = nT >= LIM.tontines && !u.premium;
+  return `<div class="col">${haut('Bonjour '+u.prenom,'Mes tontines')}
+    ${d.invits.length?`<div class="titre"><h2>Invitations</h2></div>${inv}`:''}
+    <div class="titre"><h2>Mes groupes</h2></div>
+    ${lignes || '<p class="m">Tu n’as pas encore de groupe. Crée une tontine ou accepte une invitation.</p>'}
+    <div class="m"><div class="pile" style="margin-top:22px"><button class="btn" data-act="creer" data-t="tontine">${bloque?ic('cadenas'):ic('plus')}Créer une tontine</button></div>
+    ${bloque?`<p class="fin" style="margin-top:8px">Gratuit : ${LIM.tontines} tontines. Illimité avec Premium.</p>`:''}</div></div>`;
 }
 
-/* Outils d'ordre : tirage vérifiable ou ordre manuel */
-function ordreOutils(){
-  if (S.groupe.ordre === 'tirage') return `<button class="btn sec" type="button" data-act="tirer" style="margin-top:14px">${ic('tour')}Tirer l’ordre au sort</button>${S.graine?`<p class="fin" style="margin-top:8px">Dernier tirage, graine ${S.graine}. Avec cette graine, chacun peut refaire le tirage et retrouve le même ordre.</p>`:''}`;
-  return `<div style="margin-top:14px">${S.membres.map((m,i)=>`<div class="row" style="margin:0 -18px 0 -62px"><div class="n">${i+1}</div><div class="c">${esc(m.nom)}</div><div class="d"><button class="bascule" type="button" data-act="monter" data-i="${i}" aria-label="Monter ${esc(m.nom)}">Haut</button> <button class="bascule" type="button" data-act="descendre" data-i="${i}" aria-label="Descendre ${esc(m.nom)}">Bas</button></div></div>`).join('')}</div>`;
-}
-function vueGroupe(){
-  const g = S.groupe, rad = (nom,val,lib,cur) => `<label><input type="radio" name="${nom}" value="${val}" ${cur===val?'checked':''}>${lib}</label>`;
-  return `<main><div class="mast m"><h1>Mon groupe</h1><p>Fixe le montant et l’ordre des tours. Les membres ne peuvent pas les modifier.</p></div>
-    <form class="m" id="f-groupe">
-      <label class="champ"><span>Nom du groupe</span><input type="text" name="nom" value="${esc(g.nom)}" maxlength="30"></label>
-      <label class="champ"><span>Cotisation par personne, en francs</span><input type="number" name="montant" value="${g.montant}" min="500" step="500" inputmode="numeric"></label>
-      <div class="champ"><span>Fréquence</span><div class="choix">${rad('freq','jour','Jour',g.freq)}${rad('freq','semaine','Semaine',g.freq)}${rad('freq','quinzaine','Quinzaine',g.freq)}${rad('freq','mois','Mois',g.freq)}</div></div>
-      <div class="champ"><span>Ordre des tours</span><div class="choix">${rad('ordre','tirage','Tirage au sort',g.ordre)}${rad('ordre','manuel','Choix manuel',g.ordre)}</div></div>
-      ${ordreOutils()}
-      <div class="champ"><span>Rappels de paiement</span><div class="choix">${rad('canal','push','Notification',S.rappel.canal)}${rad('canal','sms','SMS',S.rappel.canal)}${rad('canal','aucun','Aucun',S.rappel.canal)}</div></div>
-      <div class="champ"><span>Quand rappeler</span><div class="choix">${rad('quand','veille','La veille',S.rappel.quand)}${rad('quand','jour','Le jour même',S.rappel.quand)}</div></div>
-      <div class="pile" style="margin-top:22px"><button class="btn" type="submit">Enregistrer le groupe</button></div>
-    </form>
-    <hr>
-    <form class="m" id="f-invit" novalidate>
-      <div class="titre-liste" style="padding-left:0"><h2>Inviter un membre</h2></div>
-      <label class="champ" style="margin-top:6px"><span>Numéro de téléphone</span>
-        <div class="tel"><b>+221</b><input type="tel" id="inv" inputmode="numeric" maxlength="12" placeholder="78 000 00 00"></div></label>
-      <p class="err" role="alert" id="inv-err"></p>
-      <button class="btn sec" type="submit">Envoyer l’invitation</button>
-    </form></main>`;
+function ligneMembre(m,i,g,adm){
+  const [lib,ico] = LIB[m.st], b = i === g.tour-1;
+  const man = adm && g.ordre==='manuel' && g.tour===1 ? `<button class="bascule" data-act="haut" data-i="${i}" aria-label="Monter ${esc(m.nom)}">↑</button><button class="bascule" data-act="bas" data-i="${i}" aria-label="Descendre ${esc(m.nom)}">↓</button>` : '';
+  return `<div class="row${m.moi?' moi':''}${b?' ben':''}"><div class="n">${i+1}</div>
+    <div class="c"><b>${esc(m.nom)}${m.moi?' (moi)':''}</b>${m.admin?'<small>Administrateur</small>':''}${b?'<small>Reçoit ce tour</small>':''}${m.retard&&m.st!=='paye'?`<small>${m.retard} jours de retard</small>`:''}</div>
+    <div class="d">${man}<span class="st ${m.st}">${ic(ico)}${lib}</span></div></div>`;
 }
 
-function feuillePaiement(){
-  if (!S.feuille) return '';
-  return `<div class="voile" data-act="fermer"><div class="feuille" role="dialog" aria-modal="true" aria-label="Choisir l’opérateur">
-    <h2>Payer ${F(S.groupe.montant)}</h2>
-    <p style="margin-top:6px">Choisis ton opérateur. Tu confirmeras avec ton code secret dans son application (simulé ici).</p>
-    <button class="op" data-act="op" data-op="Wave"><i>W</i><span>Wave<small>Paiement mobile</small></span></button>
-    <button class="op" data-act="op" data-op="Orange Money"><i>O</i><span>Orange Money<small>Paiement mobile</small></span></button>
-    <button class="op" data-act="op" data-op="Free Money"><i>F</i><span>Free Money<small>Paiement mobile</small></span></button>
+function vGroupe(){
+  const g = G(), u = user(); if (!g){ S.vue='liste'; return vListe(); }
+  const n = g.membres.length, b = g.membres[g.tour-1], me = g.membres.find(x=>x.moi);
+  const p = g.membres.filter(x=>x.st==='paye').length, nR = g.membres.filter(x=>x.st==='echoue').length, nA = g.membres.filter(x=>x.st==='attente'||x.st==='cours').length;
+  const adm = !!me.admin || S.admin, pot = g.montant*n, mot = g.type==='invest' ? 'Mise' : 'Cotisation';
+  LECT = `${g.nom}. Tour ${g.tour} sur ${n}. Le tour revient à ${b.nom}. ${p} personnes sur ${n} ont payé. ` + (me.st==='paye'?'Ta cotisation est payée.':me.st==='cours'?'Ton paiement est en cours.':`Tu dois encore payer ${g.montant} francs.`);
+  const btnPay = me.st==='paye' ? `<button class="btn" disabled>${ic('check')}Ta ${mot.toLowerCase()} est payée</button>`
+    : me.st==='cours' ? `<button class="btn" disabled>${ic('clock')}Paiement en cours chez l’opérateur</button>`
+    : `<button class="btn ocre" data-act="payer">${ic('envoi')}Payer ${F(g.montant)}</button>`;
+  let admin = '';
+  if (adm){
+    const tirage = g.ordre==='tirage' && !g.graine ? `<button class="btn sec" data-act="tirer">${ic('tour')}Tirer l’ordre au sort</button>${''}` : '';
+    const graine = g.graine ? `<p class="fin">Tirage public, graine ${g.graine}. Avec cette graine, chacun retrouve le même ordre.</p>` : '';
+    const envoi = !g.envoye ? `<button class="btn sec" data-act="envoyer" ${p<n?'disabled':''}>${ic('envoi')}Envoyer ${F(pot)} à ${esc(b.nom)}</button>` : `<button class="btn sec" data-act="recu">${esc(b.nom)} confirme la réception (démo)</button>`;
+    admin = `<div class="titre" style="padding-left:0"><h2>Administrateur</h2></div>${tirage}${graine}${envoi}
+      <div class="champ" style="margin-top:6px"><span>Rappel des retardataires</span><div class="choix">
+        <button type="button" data-act="canal" data-v="push" aria-pressed="${g.rappel==='push'}">Notification</button>
+        <button type="button" data-act="canal" data-v="sms" aria-pressed="${g.rappel==='sms'}">SMS ${u.premium?'':'<span class="prem">'+ic('cadenas')+'Premium</span>'}</button></div></div>
+      <button class="btn sec" data-act="rappel" ${nA+nR?'':'disabled'}>${ic('clock')}Rappeler ${nA+nR} personnes</button>
+      ${telChamp('Inviter un membre','inv')}<button class="btn sec" data-act="inviter">${ic('plus')}Envoyer l’invitation</button>`;
+  }
+  const histo = g.histo.slice(0,5).map(h=>`<div class="row"><div class="n">${h.t}</div><div class="c">${esc(h.txt)}${h.op?`<small>${esc(h.op)}</small>`:''}</div><div class="d fin">${esc(h.d)}</div></div>`).join('');
+  return `<div class="col">${haut(g.nom,`Tour ${g.tour} sur ${n}, ${F(g.montant)} ${FREQ[g.freq]}`,'data-act="liste"')}
+  <div class="duo"><div>
+    <section class="tour" aria-live="polite"><div>Ce tour revient à</div><div class="nom">${esc(b.nom)}</div>
+      <div><b>${F(pot)}</b> à recevoir. ${p} sur ${n} ont payé.</div><div class="cases" aria-hidden="true">${g.membres.map(x=>`<i class="${x.st==='paye'?'on':''}"></i>`).join('')}</div></section>
+    <div class="m"><div class="tdb" role="group" aria-label="Tableau de bord"><div><b>${p}/${n}</b>payés</div><div class="${nR?'alerte':''}"><b>${nR}</b>en retard</div><div><b>${nA}</b>à payer</div></div>
+      <p class="fin" style="margin-top:8px">Collecté : ${F(p*g.montant)} sur ${F(pot)}${g.objectif?`. Objectif du groupe : ${F(g.objectif)}.`:''}</p>
+      <div class="pile">${btnPay}${me.admin?'':`<button class="bascule" data-act="vue" aria-pressed="${S.admin}" style="justify-self:start">Vue administrateur (démo)</button>`}${admin?`<div class="pile" style="margin-top:4px">${admin}</div>`:''}</div></div>
+  </div><div>
+    <div class="titre"><h2>Qui a payé</h2></div>${g.membres.map((m,i)=>ligneMembre(m,i,g,adm)).join('')}
+    <div class="titre"><h2>Historique</h2></div>${histo || '<p class="m">Aucun paiement pour l’instant.</p>'}
+    <div class="m"><div class="pile"><button class="btn sec" data-act="exporter">${u.premium?ic('partage'):ic('cadenas')}Exporter l’historique <span class="prem">${u.premium?'Premium':ic('cadenas')+'Premium'}</span></button></div></div>
+  </div></div></div>`;
+}
+
+function vCreer(){
+  const T = S.tmp, inv = S.creerType==='invest';
+  LECT = inv ? 'Crée un groupe d’investissement. Donne un nom, la mise de chaque membre et l’objectif.' : 'Crée une tontine. Donne un nom, choisis le montant, puis la fréquence.';
+  const mt = T.montantLibre ? '' : (T.montant||'5000');
+  return `<div class="col">${haut(inv?'Nouveau groupe d’investissement':'Nouvelle tontine','','data-act="liste"')}<div class="m">
+    ${champ('Nom du groupe','nom','maxlength="30"')}
+    <div class="champ"><span>${inv?'Mise par membre':'Cotisation par personne'}</span>${choix('montant',[2000,5000,10000,25000,50000].map(v=>[v,F(v)]),mt)}
+      <input type="number" data-f="montantLibre" inputmode="numeric" min="500" step="500" placeholder="Autre montant" value="${esc(T.montantLibre||'')}" style="margin-top:8px"></div>
+    <div class="champ"><span>Fréquence</span>${choix('freq',Object.keys(FREQ).map(k=>[k,FREQ[k]]),T.freq||'semaine')}</div>
+    ${inv?`<label class="champ"><span>Objectif à atteindre, en francs</span><input type="number" data-f="objectif" inputmode="numeric" value="${esc(T.objectif||'')}"></label>
+      <div class="champ"><span>Ouvert à</span>${choix('ouvert',Object.keys(OUV).map(k=>[k,OUV[k]]),T.ouvert||'tous')}</div>
+      <div class="avert" style="margin-left:0">Aucun rendement n’est garanti. L’application ne garde pas l’argent.</div>`
+    :`<div class="champ"><span>Ordre des tours</span>${choix('ordre',[['tirage','Tirage au sort'],['manuel','Choix manuel']],T.ordre||'tirage')}</div>`}
+    ${err()}<div class="pile"><button class="btn" data-act="valcreer">${ic('check')}Créer le groupe</button></div></div></div>`;
+}
+
+function vInvest(){
+  const u = user(), d = D();
+  LECT = 'Investir en groupe. Tu vois des groupes ouverts. Pour en rejoindre un ou en créer, il faut Premium.';
+  const items = INVEST.map(v=>{
+    const interdit = v.ouvert==='investisseurs' && u.profil!=='investisseur', dem = d.demandes[v.id];
+    const btn = dem ? `<button class="btn" disabled>${ic('check')}Demande envoyée</button>`
+      : interdit ? `<button class="btn" disabled>Réservé aux investisseurs</button>`
+      : `<button class="btn sec" data-act="demande" data-id="${v.id}">${u.premium?ic('envoi'):ic('cadenas')}Demander à rejoindre</button>`;
+    return `<div class="bl"><h2>${esc(v.nom)}</h2><p>Mise ${F(v.ticket)} ${''}, objectif ${F(v.objectif)}</p>
+      <p class="fin">${v.pris} places prises sur ${v.places}. Ouvert à : ${OUV[v.ouvert]}.</p>
+      <div class="cases" style="color:var(--encre)" aria-hidden="true">${Array.from({length:v.places},(_,i)=>`<i class="${i<v.pris?'on':''}" style="border-color:var(--encre);${i<v.pris?'background:var(--encre)':''};height:10px"></i>`).join('')}</div>
+      <div class="pile" style="margin-top:12px">${btn}</div></div>`; }).join('');
+  return `<div class="col">${haut('Investir en groupe','Groupes ouverts')}
+    <div class="avert">Exemples fictifs de démonstration. Aucun rendement n’est garanti et l’application ne garde pas l’argent. Ce n’est pas un conseil financier.</div>
+    ${items}
+    <div class="m"><div class="pile" style="margin-top:22px"><button class="btn" data-act="creer" data-t="invest">${u.premium?ic('plus'):ic('cadenas')}Créer un groupe d’investissement</button></div></div></div>`;
+}
+
+function vPlus(){
+  const u = user();
+  LECT = u.premium ? 'Tu as Premium. Tu peux rejoindre des groupes d’investissement et créer autant de tontines que tu veux.' : 'Gratuit : 2 tontines, 12 membres, rappels par notification. Premium ajoute les SMS, l’investissement et l’export.';
+  const L = [['Tontines','2','Illimitées'],['Membres par tontine','12','40'],['Rappels','Notification','Notif. + SMS'],['Historique','Lecture','Export'],['Groupes d’investissement','Voir','Rejoindre, créer'],['Score de fiabilité','Non','Partageable avec accord']];
+  return `<div class="col">${haut('Plus','Mon compte')}
+    <div class="titre"><h2>${esc(u.prenom)} ${esc(u.nom)}</h2></div>
+    <div class="row"><div class="n">${ic('user')}</div><div class="c">+221 ${esc(u.tel)}<small>${esc(u.quartier)}, ${u.profil==='investisseur'?'investisseur':'particulier'}</small></div></div>
+    <div class="row"><div class="n">${ic('voix')}</div><div class="c">Langue : Français<small>Wolof, pulaar, sereer : bientôt</small></div></div>
+    <div class="titre"><h2>${u.premium?'Premium actif':'Gratuit, avec Premium en option'}</h2></div>
+    <div class="m"><div class="cmp"><div class="h">Fonction</div><div class="h">Gratuit</div><div class="h">Premium</div>${L.map(r=>`<div>${r[0]}</div><div>${r[1]}</div><div>${r[2]}</div>`).join('')}</div>
+      <p class="fin" style="margin-top:10px">Prix envisagé : 1 000 F par mois, à confirmer par les entretiens. Démonstration : aucun paiement réel.</p>
+      <div class="pile"><button class="btn ${u.premium?'sec':'ocre'}" data-act="prem">${ic('etoile')}${u.premium?'Revenir à Gratuit (démo)':'Essayer Premium (démo)'}</button>
+      <button class="btn sec" data-act="deco">Me déconnecter</button></div></div></div>`;
+}
+
+function vApp(){
+  const t = [['tontines','Mes tontines','maison'],['invest','Investir','pousse'],['plus','Plus','etoile']];
+  let h;
+  if (S.onglet==='tontines') h = S.vue==='groupe' ? vGroupe() : S.vue==='creer' ? vCreer() : vListe();
+  else h = S.onglet==='invest' ? vInvest() : vPlus();
+  return h + `<nav class="tabs" aria-label="Navigation">${t.map(([k,l,i])=>`<button class="tab" data-tab="${k}" ${S.onglet===k?'aria-current="page"':''}>${ic(i)}${l}</button>`).join('')}</nav>`;
+}
+
+function vFeuille(){
+  const f = UI.feuille, g = G();
+  if (f.t === 'op') return `<div class="voile" data-act="fermer"><div class="feuille" role="dialog" aria-modal="true" aria-label="Choisir l’opérateur">
+    <h2>Payer ${F(g.montant)}</h2><p style="margin-top:6px">Choisis ton opérateur. Tu confirmeras avec ton code secret dans son application (simulé ici).</p>
+    ${['Wave','Orange Money','Free Money'].map(o=>`<button class="op" data-act="op" data-op="${o}"><i>${o[0]}</i><span>${o}</span></button>`).join('')}
     <button class="btn sec" style="margin-top:14px" data-act="fermer">Annuler</button></div></div>`;
-}
-
-function vueTabs(){
-  const t = [['tour','Tour','tour'],['registre','Registre','registre'],['groupe','Groupe','groupe']];
-  return `<nav class="tabs" aria-label="Navigation">${t.map(([k,l,i])=>`<button class="tab" data-tab="${k}" ${S.onglet===k?'aria-current="page"':''}>${ic(i)}${l}</button>`).join('')}</nav>`;
+  const msg = `Cotisation payée : ${F(f.montant)} à ${f.nom}. Preuve ${f.num}, ${f.op}.`;
+  LECT = `Merci ${user().prenom}. Ton paiement de ${f.montant} francs est enregistré.`;
+  return `<div class="voile" data-act="fermer"><div class="feuille recu" role="dialog" aria-modal="true"><h2>Merci ${esc(user().prenom)}</h2><p><span class="st paye">${ic('check')}Payé et enregistré</span></p>
+    <dl><dt>Preuve</dt><dd>${f.num}</dd><dt>Opérateur</dt><dd>${esc(f.op)}</dd><dt>Montant</dt><dd>${F(f.montant)}</dd><dt>Date</dt><dd>${esc(f.d)}</dd></dl>
+    <div class="pile"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">${ic('partage')}Partager sur WhatsApp</a>
+    <button class="btn sec" data-act="lire">${ic('voix')}Écouter</button><button class="btn sec" data-act="fermer">Fermer</button></div></div></div>`;
 }
 
 function render(){
-  const app = document.getElementById('app');
-  if (S.ecran === 'login'){ app.innerHTML = vueLogin(); return; }
-  const v = {tour:vueTour, registre:vueRegistre, groupe:vueGroupe}[S.onglet]();
-  app.innerHTML = v + vueTabs() + feuillePaiement();
+  const e = S.ecran;
+  const h = e==='accueil' ? vAccueil() : e==='inscription' ? vInscription() : e==='connexion' ? vConnexion() : vApp();
+  $('app').innerHTML = h + (UI.feuille ? vFeuille() : '');
+  save();
 }
 
-/* ===== Actions ===== */
+/* ===== Logique ===== */
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function melanger(noms,graine){const r=mulberry(graine),a=[...noms];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function creerCompte(){
+  const T = S.tmp, tel = T.tel9;
+  S.comptes[tel] = {prenom:T.prenom.trim(),nom:(T.nom||'').trim(),tel,pin:T.pin1,quartier:T.quartier||'Médina',profil:T.profil||'particulier',premium:false};
+  S.donnees[tel] = {invits:[{id:'i1',de:'Fatou',nom:'Tontine des Parcelles',montant:5000,freq:'semaine',n:8,demo:true}],groupes:[],demandes:{}};
+  Object.assign(S,{tel,ecran:'app',onglet:'tontines',vue:'liste',tmp:{},saisie:'',erreur:'',etape:1});
+  toast('Compte créé. Une invitation t’attend.');
+}
 function payer(op){
-  const m = moi();
-  S.feuille = false; m.st = 'cours'; render();
+  const g = G(), me = g.membres.find(x=>x.moi); UI.feuille = null; me.st = 'cours'; render();
   toast('Demande envoyée à ' + op + '. Confirme dans son application.');
-  setTimeout(() => {
-    m.st = 'paye';
-    S.histo.unshift({t:S.groupe.tour, txt:m.nom + ' a payé ' + F(S.groupe.montant), op, d:'lun. 16'});
-    render(); toast('Paiement confirmé par ' + op + '. Tout le groupe est prévenu.');
-  }, 2400);
+  setTimeout(()=>{
+    me.st = 'paye'; const d = auj();
+    g.histo.unshift({t:g.tour,txt:me.nom+' a payé '+F(g.montant),op,d});
+    UI.feuille = {t:'recu',num:'#TK-'+Math.floor(100000+Math.random()*900000),op,montant:g.montant,nom:g.nom,d}; render();
+  },2400);
 }
-function ecouter(){
-  const b = benef(), n = S.membres.length, reste = n - nbPayes();
-  const txt = `Tour ${S.groupe.tour} sur ${n}. Le tour revient à ${b.nom}. ${nbPayes()} personnes sur ${n} ont payé. ${reste ? 'Il reste ' + reste + ' paiements.' : 'Tout le monde a payé.'}`;
-  if (!('speechSynthesis' in window)) return toast('Lecture vocale indisponible sur cet appareil.');
-  speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt); u.lang = 'fr-FR'; speechSynthesis.speak(u);
-}
-function recu(){
-  const b = benef(), n = S.membres.length;
-  S.histo.unshift({t:S.groupe.tour, txt:b.nom + ' a reçu ' + F(cagnotte()), op:'', d:'lun. 16'});
-  S.groupe.tour = S.groupe.tour % n + 1; S.membres.forEach(m => m.st = 'attente'); S.envoye = false;
-  render(); toast('Nouveau tour : ' + benef().nom + ' reçoit la prochaine cagnotte.');
-}
+const ACT = {
+  lire, fermer:()=>{UI.feuille=null},
+  vers:a=>{S.ecran=a.dataset.v;S.etape=1;S.saisie='';S.erreur='';S.tmp={}},
+  etape:a=>{S.etape=+a.dataset.v;S.saisie='';S.erreur='';delete S.tmp.pin1},
+  set:a=>{S.tmp[a.dataset.ch]=a.dataset.v;if(a.dataset.ch==='montant')delete S.tmp.montantLibre},
+  touche:a=>{const k=a.dataset.k;if(k==='eff')S.saisie=S.saisie.slice(0,-1);else if(S.saisie.length<4)S.saisie+=k;S.erreur=''},
+  etape1:()=>{
+    const T=S.tmp,t=(T.tel||'').replace(/\D/g,'');
+    if(!(T.prenom||'').trim())return S.erreur='Écris ton prénom.';
+    if(t.length!==9)return S.erreur='Écris les 9 chiffres de ton numéro.';
+    if(S.comptes[t])return S.erreur='Ce numéro a déjà un compte. Appuie sur Retour, puis Me connecter.';
+    T.tel9=t;S.etape=2;S.saisie='';S.erreur='';
+  },
+  valider:()=>{
+    const T=S.tmp;
+    if(S.saisie.length!==4)return S.erreur='Tape les 4 chiffres.';
+    if(S.ecran==='connexion'){
+      const t=(T.tel||'').replace(/\D/g,''),c=S.comptes[t];
+      if(!c||c.pin!==S.saisie)return S.erreur='Numéro ou code incorrect.';
+      Object.assign(S,{tel:t,ecran:'app',onglet:'tontines',vue:'liste',tmp:{},saisie:'',erreur:''});return;
+    }
+    if(S.etape===2){S.etape=3;S.saisie='';S.erreur='';return}
+    if(!T.pin1){T.pin1=S.saisie;S.saisie='';S.erreur='';return}
+    if(T.pin1!==S.saisie){delete T.pin1;S.saisie='';return S.erreur='Les deux codes sont différents. Recommence.'}
+    creerCompte();
+  },
+  deco:()=>{Object.assign(S,{tel:null,ecran:'accueil',tmp:{},saisie:'',vue:'liste',gid:null,admin:false})},
+  ouvrir:a=>{S.gid=a.dataset.id;S.vue='groupe';S.admin=false;window.scrollTo(0,0)},
+  liste:()=>{S.vue='liste'},
+  accepter:a=>{
+    const d=D(),i=d.invits.find(x=>x.id===a.dataset.i),u=user();if(!i)return;
+    const g=i.demo?demoGroupe(u.prenom):{id:'g'+Date.now(),type:'tontine',nom:i.nom,montant:i.montant,freq:i.freq,ordre:'tirage',tour:1,graine:null,envoye:false,rappel:'push',histo:[],
+      membres:[{nom:i.de,st:'attente',admin:true},{nom:u.prenom,st:'attente',moi:true}]};
+    d.groupes.push(g);d.invits=d.invits.filter(x=>x!==i);toast('Tu as rejoint '+i.nom+'.');
+  },
+  refuser:a=>{D().invits=D().invits.filter(x=>x.id!==a.dataset.i);toast('Invitation refusée.')},
+  creer:a=>{
+    const u=user(),t=a.dataset.t;
+    if(t==='invest'&&!u.premium)return premium('Créer un groupe d’investissement :');
+    if(t==='tontine'&&!u.premium&&D().groupes.filter(g=>g.type==='tontine').length>=LIM.tontines)return premium('Tu as déjà '+LIM.tontines+' tontines.');
+    S.creerType=t;S.tmp={};S.erreur='';S.vue='creer';S.onglet='tontines';
+  },
+  valcreer:()=>{
+    const T=S.tmp,u=user(),inv=S.creerType==='invest',mt=parseInt(T.montantLibre||T.montant||'5000',10);
+    if(!(T.nom||'').trim())return S.erreur='Donne un nom au groupe.';
+    if(!(mt>=500))return S.erreur='Le montant doit être d’au moins 500 F.';
+    const g={id:'g'+Date.now(),type:S.creerType,nom:T.nom.trim(),montant:mt,freq:T.freq||'semaine',ordre:inv?'tirage':(T.ordre||'tirage'),tour:1,graine:null,envoye:false,rappel:'push',histo:[],
+      objectif:inv?(parseInt(T.objectif,10)||0):0,ouvert:T.ouvert||'tous',membres:[{nom:u.prenom,st:'attente',admin:true,moi:true}]};
+    D().groupes.push(g);S.gid=g.id;S.vue='groupe';S.tmp={};S.erreur='';toast('Groupe créé. Invite tes membres en bas de la page.');
+  },
+  payer:()=>{UI.feuille={t:'op'}},
+  op:a=>payer(a.dataset.op),
+  vue:()=>{S.admin=!S.admin},
+  canal:a=>{const u=user();if(a.dataset.v==='sms'&&!u.premium)return premium('Rappels par SMS :');G().rappel=a.dataset.v},
+  rappel:()=>{
+    const g=G(),l=g.membres.filter(m=>m.st!=='paye'),c=g.rappel==='sms'?'SMS':'Notification';
+    g.histo.unshift({t:g.tour,txt:'Rappel envoyé à '+l.map(m=>m.nom).join(', '),op:c,d:auj()});toast(c+' envoyé à '+l.length+' personnes.');
+  },
+  inviter:()=>{
+    const g=G(),u=user(),t=(S.tmp.inv||'').replace(/\D/g,'');
+    if(t.length!==9)return toast('Écris les 9 chiffres du numéro.');
+    if(g.membres.length>=(u.premium?LIM.premium:LIM.gratuit))return premium('Limite de '+LIM.gratuit+' membres atteinte.');
+    g.membres.push({nom:'+221 '+t.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/,'$1 $2 $3 $4'),st:'attente'});
+    const autre=S.donnees[t];
+    if(autre)autre.invits.push({id:'i'+Date.now(),de:u.prenom,nom:g.nom,montant:g.montant,freq:g.freq,n:g.membres.length});
+    S.tmp.inv='';toast(autre?'Invitation envoyée dans son compte.':'Invitation enregistrée. Envoie-lui le lien par WhatsApp.');
+  },
+  tirer:()=>{
+    const g=G(),s=100000+Math.floor(Math.random()*900000),o=melanger(g.membres.map(m=>m.nom),s);
+    g.membres.sort((a,b)=>o.indexOf(a.nom)-o.indexOf(b.nom));g.graine=s;g.tour=1;
+    g.histo.unshift({t:1,txt:'Tirage au sort : '+o.join(', '),op:'Graine '+s,d:auj()});toast('Ordre tiré. Graine '+s+'.');
+  },
+  haut:a=>{const g=G(),i=+a.dataset.i;if(i>0)[g.membres[i],g.membres[i-1]]=[g.membres[i-1],g.membres[i]]},
+  bas:a=>{const g=G(),i=+a.dataset.i;if(i<g.membres.length-1)[g.membres[i],g.membres[i+1]]=[g.membres[i+1],g.membres[i]]},
+  envoyer:()=>{const g=G();g.envoye=true;toast(F(g.montant*g.membres.length)+' envoyés à '+g.membres[g.tour-1].nom+'.')},
+  recu:()=>{
+    const g=G(),b=g.membres[g.tour-1];g.histo.unshift({t:g.tour,txt:b.nom+' a reçu '+F(g.montant*g.membres.length),op:'',d:auj()});
+    g.tour=g.tour%g.membres.length+1;g.membres.forEach(m=>{m.st='attente';m.retard=0});g.envoye=false;toast('Nouveau tour : '+g.membres[g.tour-1].nom+' reçoit la prochaine cagnotte.');
+  },
+  exporter:()=>{
+    if(!user().premium)return premium('Export de l’historique :');
+    const g=G(),csv='tour;texte;operateur;date\n'+g.histo.map(h=>[h.t,h.txt,h.op,h.d].join(';')).join('\n'),a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));a.download='historique.csv';a.click();
+  },
+  demande:a=>{if(!user().premium)return premium('Rejoindre un groupe d’investissement :');D().demandes[a.dataset.id]=true;toast('Demande envoyée à l’organisateur.')},
+  prem:()=>{const u=user();u.premium=!u.premium;toast(u.premium?'Premium activé (démo).':'Retour à Gratuit.')}
+};
 
 document.addEventListener('click', e => {
   const tab = e.target.closest('[data-tab]');
-  if (tab){ S.onglet = tab.dataset.tab; render(); window.scrollTo(0,0); return; }
+  if (tab){ S.onglet = tab.dataset.tab; if (S.onglet==='tontines') S.vue='liste'; render(); window.scrollTo(0,0); return; }
   const a = e.target.closest('[data-act]'); if (!a) return;
-  if (a.classList.contains('voile') && e.target !== a) return; // clic dans la feuille
-  const act = a.dataset.act;
-  if (act === 'payer'){ S.feuille = true; render(); }
-  else if (act === 'fermer'){ S.feuille = false; render(); }
-  else if (act === 'op') payer(a.dataset.op);
-  else if (act === 'vue'){ S.admin = !S.admin; render(); }
-  else if (act === 'envoyer'){ S.envoye = true; render(); toast(F(cagnotte()) + ' envoyés à ' + benef().nom + '.'); }
-  else if (act === 'recu') recu();
-  else if (act === 'ecouter') ecouter();
-  else if (act === 'tirer') tirer();
-  else if (act === 'rappel') rappel();
-  else if (act === 'monter' || act === 'descendre'){
-    const i = +a.dataset.i, j = act === 'monter' ? i - 1 : i + 1;
-    if (j < 0 || j >= S.membres.length) return;
-    [S.membres[i], S.membres[j]] = [S.membres[j], S.membres[i]]; render();
-  }
+  if (a.classList.contains('voile') && e.target !== a) return;
+  const f = ACT[a.dataset.act]; if (!f) return;
+  const nav = ['vers','ouvrir','liste','creer','valcreer','accepter','deco','etape'].includes(a.dataset.act);
+  if (a.dataset.act !== 'lire') S.erreur = a.dataset.act==='touche' ? S.erreur : '';
+  const r = f(a); if (typeof r === 'string') S.erreur = r;
+  render(); if (nav) window.scrollTo(0,0);
 });
-
-document.addEventListener('submit', e => {
-  e.preventDefault();
-  if (e.target.id === 'f-login'){
-    const tel = document.getElementById('tel').value.replace(/\D/g,''), pin = document.getElementById('pin').value;
-    if (tel.length !== 9){ S.erreur = 'Entre les 9 chiffres de ton numéro.'; return render(); }
-    if (!/^\d{4}$/.test(pin)){ S.erreur = 'Le code secret fait 4 chiffres.'; return render(); }
-    S.erreur = ''; S.ecran = 'app'; render(); window.scrollTo(0,0);
-  } else if (e.target.id === 'f-groupe'){
-    const d = new FormData(e.target), mt = parseInt(d.get('montant'), 10);
-    if (!(mt >= 500)){ return toast('La cotisation doit être d’au moins 500 F.'); }
-    Object.assign(S.groupe, {nom:(d.get('nom')||'').trim() || S.groupe.nom, montant:mt, freq:d.get('freq'), ordre:d.get('ordre')});
-    S.rappel = {canal:d.get('canal') || 'push', quand:d.get('quand') || 'veille'};
-    render(); toast('Groupe enregistré.');
-  } else if (e.target.id === 'f-invit'){
-    const v = document.getElementById('inv').value.replace(/\D/g,'');
-    if (v.length !== 9) return (document.getElementById('inv-err').textContent = 'Entre les 9 chiffres du numéro.');
-    S.membres.push({nom:'+221 ' + v.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/,'$1 $2 $3 $4'), st:'attente'});
-    render(); toast('Lien d’invitation envoyé. Le membre doit accepter.');
-  }
-});
-
-/* Tirage transparent : générateur à graine publique (même graine = même ordre) */
-function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function melanger(noms,graine){const r=mulberry(graine),a=[...noms];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function tirer(){
-  if (S.groupe.tour > 1 && !confirm('Un nouveau tirage remet le tour à 1. Continuer ?')) return;
-  const g = 100000 + Math.floor(Math.random()*900000), ordre = melanger(S.membres.map(m=>m.nom), g);
-  S.membres.sort((a,b)=>ordre.indexOf(a.nom)-ordre.indexOf(b.nom));
-  S.graine = g; S.groupe.tour = 1; S.envoye = false; S.membres.forEach(m=>m.st='attente');
-  S.histo.unshift({t:1,txt:'Tirage au sort : '+ordre.join(', '),op:'Graine '+g,d:'lun. 16'});
-  render(); toast('Ordre tiré. Graine '+g+', visible dans le registre.');
-}
-function rappel(){
-  const canal = {push:'Notification',sms:'SMS'}[S.rappel.canal];
-  if (!canal) return toast('Les rappels sont désactivés. Active-les dans l’onglet Groupe.');
-  const l = S.membres.filter(m=>m.st!=='paye');
-  S.histo.unshift({t:S.groupe.tour,txt:'Rappel envoyé à '+l.map(m=>m.nom).join(', '),op:canal,d:'lun. 16'});
-  render(); toast(canal+' envoyé à '+l.length+' membres.');
-}
-document.addEventListener('change', e => {
-  if (e.target.type !== 'radio' || !e.target.closest('#f-groupe')) return;
-  const d = new FormData(e.target.closest('#f-groupe')), mt = parseInt(d.get('montant'),10);
-  Object.assign(S.groupe, {nom:(d.get('nom')||'').trim() || S.groupe.nom, freq:d.get('freq'), ordre:d.get('ordre')});
-  if (mt >= 500) S.groupe.montant = mt;
-  S.rappel = {canal:d.get('canal'), quand:d.get('quand')}; render();
-});
-
+document.addEventListener('input', e => { const f = e.target.dataset && e.target.dataset.f; if (f) S.tmp[f] = e.target.value; });
 render();
 </script>
 </body>
