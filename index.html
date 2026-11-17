@@ -199,6 +199,10 @@ h1{font-size:32px;font-weight:800} h2{font-size:20px}
 @media (prefers-reduced-motion:reduce){.btn{transition:none}}
 
 .champ input.code{text-align:center;letter-spacing:.5em;padding-left:.5em;font:800 34px var(--f-titre);min-height:76px}
+.tarif{display:grid;grid-template-columns:1fr auto;border-radius:18px;overflow:hidden;border:2px solid var(--ligne);background:var(--surf);font-size:16px}
+.tarif>div{padding:12px;border-bottom:1px solid var(--ligne)}
+.tarif>div:nth-last-child(-n+2){border-bottom:0}
+.tarif>div:nth-child(2n){font:800 17px var(--f-titre);text-align:right;white-space:nowrap;background:var(--mangue-pale)}
 /* ===== Modules ajoutés : profil et score, épargne, assistance, marketplace ===== */
 textarea{font:inherit;color:inherit}
 .champ textarea{width:100%;min-height:110px;background:var(--surf);border:2px solid var(--trait);border-radius:16px;padding:12px 16px;font:400 19px/1.4 var(--f-texte);resize:vertical;outline:none}
@@ -263,6 +267,9 @@ const INVEST = [
 ];
 const OUV = {tous:'Particuliers et investisseurs',particuliers:'Particuliers',investisseurs:'Investisseurs'};
 const LIM = {tontines:2, gratuit:12, premium:40};
+/* Commission TDDK, par membre et payée une seule fois (avec la première cotisation) : 200 F jusqu'à 10 membres, 150 F au-delà. */
+const COMM = {seuil:10, bas:200, haut:150};
+const comm = n => n <= COMM.seuil ? COMM.bas : COMM.haut;
 
 /* ===== État, enregistré sur cet appareil (localStorage) ===== */
 const KEY = 'tontine-cahier-v1';
@@ -352,7 +359,7 @@ function vConnexion(){
 function vListe(){
   const u = user(), d = D(), nT = d.groupes.filter(g=>g.type==='tontine').length;
   LECT = `Bonjour ${u.prenom}. Tu as ${d.groupes.length} groupes et ${d.invits.length} invitations.`;
-  const inv = d.invits.map(i=>`<div class="inv"><b>${esc(i.de)} t’invite</b><p>${esc(i.nom)}, ${F(i.montant)} ${FREQ[i.freq]}, ${i.n} personnes</p>
+  const inv = d.invits.map(i=>`<div class="inv"><b>${esc(i.de)} t’invite</b><p>${esc(i.nom)}, ${F(i.montant)} ${FREQ[i.freq]}, ${i.n} personnes</p><p class="fin">Commission TDDK : ${F(comm(i.n))} par membre, payée une seule fois.</p>
     <div class="duo2"><button class="btn" data-act="accepter" data-i="${i.id}">${ic('check')}Accepter</button><button class="btn sec" data-act="refuser" data-i="${i.id}">${ic('cross')}Refuser</button></div></div>`).join('');
   const lignes = d.groupes.map(g=>{
     const me = g.membres.find(x=>x.moi), [lib,ico] = LIB[me.st];
@@ -380,11 +387,11 @@ function vGroupe(){
   const g = G(), u = user(); if (!g){ S.vue='liste'; return vListe(); }
   const n = g.membres.length, b = g.membres[g.tour-1], me = g.membres.find(x=>x.moi);
   const p = g.membres.filter(x=>x.st==='paye').length, nR = g.membres.filter(x=>x.st==='echoue').length, nA = g.membres.filter(x=>x.st==='attente'||x.st==='cours').length;
-  const adm = !!me.admin || S.admin, pot = g.montant*n, mot = g.type==='invest' ? 'Mise' : 'Cotisation';
-  LECT = `${g.nom}. Tour ${g.tour} sur ${n}. Le tour revient à ${b.nom}. ${p} personnes sur ${n} ont payé. ` + (me.st==='paye'?'Ta cotisation est payée.':me.st==='cours'?'Ton paiement est en cours.':`Tu dois encore payer ${g.montant} francs.`);
+  const adm = !!me.admin || S.admin, pot = g.montant*n, mot = g.type==='invest' ? 'Mise' : 'Cotisation', cm = comm(n), c = me.comm ? 0 : cm;
+  LECT = `${g.nom}. Tour ${g.tour} sur ${n}. Le tour revient à ${b.nom}. ${p} personnes sur ${n} ont payé. ` + (me.st==='paye'?'Ta cotisation est payée.':me.st==='cours'?'Ton paiement est en cours.':`Tu dois encore payer ${g.montant+c} francs${c?`, dont ${c} de commission, payée une seule fois`:''}.`);
   const btnPay = me.st==='paye' ? `<button class="btn" disabled>${ic('check')}Ta ${mot.toLowerCase()} est payée</button>`
     : me.st==='cours' ? `<button class="btn" disabled>${ic('clock')}Paiement en cours chez l’opérateur</button>`
-    : `<button class="btn ocre" data-act="payer">${ic('envoi')}Payer ${F(g.montant)}</button>`;
+    : `<button class="btn ocre" data-act="payer">${ic('envoi')}Payer ${F(g.montant+c)}</button>`;
   let admin = '';
   if (adm){
     const tirage = g.ordre==='tirage' && !g.graine ? `<button class="btn sec" data-act="tirer">${ic('tour')}Tirer l’ordre au sort</button>${''}` : '';
@@ -404,6 +411,7 @@ function vGroupe(){
       <div><b>${F(pot)}</b> à recevoir. ${p} sur ${n} ont payé.</div><div class="cases" aria-hidden="true">${g.membres.map(x=>`<i class="${x.st==='paye'?'on':''}"></i>`).join('')}</div></section>
     <div class="m"><div class="tdb" role="group" aria-label="Tableau de bord"><div><b>${p}/${n}</b>payés</div><div class="${nR?'alerte':''}"><b>${nR}</b>en retard</div><div><b>${nA}</b>à payer</div></div>
       <p class="fin" style="margin-top:8px">Collecté : ${F(p*g.montant)} sur ${F(pot)}${g.objectif?`. Objectif du groupe : ${F(g.objectif)}.`:''}</p>
+      <p class="fin" style="margin-top:6px">${me.comm?`Ta commission TDDK de ${F(me.comm)} est déjà payée : elle ne se paie qu’une seule fois.`:`Commission TDDK : <b>${F(cm)}</b> par membre (groupe de ${n} membres), payée une seule fois avec ta première ${mot.toLowerCase()}. Elle n’entre pas dans la cagnotte.`}</p>
       <div class="pile">${btnPay}${me.admin?'':`<button class="bascule" data-act="vue" aria-pressed="${S.admin}" style="justify-self:start">Vue administrateur (démo)</button>`}${admin?`<div class="pile" style="margin-top:4px">${admin}</div>`:''}</div></div>
   </div><div>
     <div class="titre"><h2>Qui a payé</h2></div>${g.membres.map((m,i)=>ligneMembre(m,i,g,adm)).join('')}
@@ -425,6 +433,7 @@ function vCreer(){
       <div class="champ"><span>Ouvert à</span>${choix('ouvert',Object.keys(OUV).map(k=>[k,OUV[k]]),T.ouvert||'tous')}</div>
       <div class="avert" style="margin-left:0">Aucun rendement n’est garanti. L’application ne garde pas l’argent.</div>`
     :`<div class="champ"><span>Ordre des tours</span>${choix('ordre',[['tirage','Tirage au sort'],['manuel','Choix manuel']],T.ordre||'tirage')}</div>`}
+    <div class="avert"><p><b>Commission TDDK</b>, payée une seule fois par chaque membre : ${F(COMM.bas)} jusqu’à ${COMM.seuil} membres, ${F(COMM.haut)} au-delà de ${COMM.seuil}.</p></div>
     ${err()}<div class="pile"><button class="btn" data-act="valcreer">${ic('check')}Créer le groupe</button></div></div></div>`;
 }
 
@@ -438,6 +447,7 @@ function vInvest(){
       : `<button class="btn sec" data-act="demande" data-id="${v.id}">${u.premium?ic('envoi'):ic('cadenas')}Demander à rejoindre</button>`;
     return `<div class="bl"><h2>${esc(v.nom)}</h2><p>Mise ${F(v.ticket)} ${''}, objectif ${F(v.objectif)}</p>
       <p class="fin">${v.pris} places prises sur ${v.places}. Ouvert à : ${OUV[v.ouvert]}.</p>
+      <p class="fin">Commission TDDK : ${F(comm(v.places))} par membre, payée une seule fois.</p>
       <div class="cases" aria-hidden="true">${Array.from({length:v.places},(_,i)=>`<i class="${i<v.pris?'on':''}"></i>`).join('')}</div>
       <div class="pile" style="margin-top:12px">${btn}</div></div>`; }).join('');
   return `<div class="col">${haut('Investir en groupe','Groupes ouverts')}
@@ -455,7 +465,9 @@ function vPlus(){
     <div class="row"><div class="n">${ic('voix')}</div><div class="c">Langue : Français<small>Wolof, pulaar, sereer : bientôt</small></div></div>
     <div class="titre"><h2>${u.premium?'Premium actif':'Gratuit, avec Premium en option'}</h2></div>
     <div class="m"><div class="cmp"><div class="h">Fonction</div><div class="h">Gratuit</div><div class="h">Premium</div>${L.map(r=>`<div>${r[0]}</div><div>${r[1]}</div><div>${r[2]}</div>`).join('')}</div>
-      <p class="fin" style="margin-top:10px">Prix envisagé : 1 000 F par mois, à confirmer par les entretiens. Démonstration : aucun paiement réel.</p>
+            <div class="titre"><h2>Commission par groupe</h2></div>
+      <div class="tarif"><div>Groupe de ${COMM.seuil} membres ou moins</div><div>${F(COMM.bas)} par membre</div><div>Groupe de plus de ${COMM.seuil} membres</div><div>${F(COMM.haut)} par membre</div></div>
+      <p class="fin" style="margin-top:10px">Chaque membre la paie une seule fois, avec sa première cotisation. Elle est la même en Gratuit et en Premium.</p>
       <div class="pile"><button class="btn ${u.premium?'sec':'ocre'}" data-act="prem">${ic('etoile')}${u.premium?'Revenir à Gratuit (démo)':'Essayer Premium (démo)'}</button>
       <button class="btn sec" data-act="deco">Me déconnecter</button></div></div></div>`;
 }
@@ -470,14 +482,15 @@ function vApp(){
 
 function vFeuille(){
   const f = UI.feuille, g = G();
+  const mc = g && g.membres.find(x=>x.moi), c = mc && !mc.comm ? comm(g.membres.length) : 0;
   if (f.t === 'op') return `<div class="voile" data-act="fermer"><div class="feuille" role="dialog" aria-modal="true" aria-label="Choisir l’opérateur">
-    <h2>Payer ${F(g.montant)}</h2><p style="margin-top:6px">Choisis ton opérateur. Tu confirmeras avec ton code secret dans son application (simulé ici).</p>
+    <h2>Payer ${F(g.montant+c)}</h2><p style="margin-top:6px">${c?`${F(g.montant)} de cotisation + ${F(c)} de commission TDDK, payée une seule fois. `:''}Choisis ton opérateur. Tu confirmeras avec ton code secret dans son application (simulé ici).</p>
     ${['Wave','Orange Money','Free Money'].map(o=>`<button class="op" data-act="op" data-op="${o}"><i>${o[0]}</i><span>${o}</span></button>`).join('')}
     <button class="btn sec" style="margin-top:14px" data-act="fermer">Annuler</button></div></div>`;
   const msg = `Cotisation payée : ${F(f.montant)} à ${f.nom}. Preuve ${f.num}, ${f.op}.`;
-  LECT = `Merci ${user().prenom}. Ton paiement de ${f.montant} francs est enregistré.`;
+  LECT = `Merci ${user().prenom}. Ton paiement de ${f.montant+f.commission} francs${f.commission?`, dont ${f.commission} de commission`:''} est enregistré.`;
   return `<div class="voile" data-act="fermer"><div class="feuille recu" role="dialog" aria-modal="true"><h2>Merci ${esc(user().prenom)}</h2><p><span class="st paye">${ic('check')}Payé et enregistré</span></p>
-    <dl><dt>Preuve</dt><dd>${f.num}</dd><dt>Opérateur</dt><dd>${esc(f.op)}</dd><dt>Montant</dt><dd>${F(f.montant)}</dd><dt>Date</dt><dd>${esc(f.d)}</dd></dl>
+    <dl><dt>Preuve</dt><dd>${f.num}</dd><dt>Opérateur</dt><dd>${esc(f.op)}</dd><dt>Cotisation</dt><dd>${F(f.montant)}</dd>${f.commission?`<dt>Commission</dt><dd>${F(f.commission)}</dd><dt>Total payé</dt><dd>${F(f.montant+f.commission)}</dd>`:''}<dt>Date</dt><dd>${esc(f.d)}</dd></dl>
     <div class="pile"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">${ic('partage')}Partager sur WhatsApp</a>
     <button class="btn sec" data-act="lire">${ic('voix')}Écouter</button><button class="btn sec" data-act="fermer">Fermer</button></div></div></div>`;
 }
@@ -503,12 +516,12 @@ function creerCompte(){
   toast('Compte créé. Une invitation t’attend.');
 }
 function payer(op){
-  const g = G(), me = g.membres.find(x=>x.moi); UI.feuille = null; me.st = 'cours'; render();
+  const g = G(), me = g.membres.find(x=>x.moi), c = me.comm ? 0 : comm(g.membres.length); UI.feuille = null; me.st = 'cours'; render();
   toast('Demande envoyée à ' + op + '. Confirme dans son application.');
   setTimeout(()=>{
-    me.st = 'paye'; const d = auj();
+    me.st = 'paye'; if (c) me.comm = c; const d = auj();
     g.histo.unshift({t:g.tour,txt:me.nom+' a payé '+F(g.montant),op,d});
-    UI.feuille = {t:'recu',num:'#TK-'+Math.floor(100000+Math.random()*900000),op,montant:g.montant,nom:g.nom,d}; render();
+    UI.feuille = {t:'recu',num:'#TK-'+Math.floor(100000+Math.random()*900000),op,montant:g.montant,commission:c,nom:g.nom,d}; render();
   },2400);
 }
 const ACT = {
@@ -832,7 +845,8 @@ function vAssist(){
       <div class="champ"><span>Cotisation par personne</span>${choix('as_m',[2000,5000,10000,25000].map(v=>[v,F(v)]),m)}</div>
       <div class="champ"><span>Fréquence</span>${choix('as_f',Object.keys(FREQ).map(k=>[k,FREQ[k]]),f)}</div>
       <div class="bl" style="margin:16px 0 0"><p>${n} personnes cotisent ${F(m)} ${FREQ[f]}.</p><p>À chaque tour, la cagnotte est de <b>${F(pot)}</b> et une personne la reçoit. Après ${n} tours, tout le monde a reçu une fois : environ ${duree(n*CYC[f])}.</p>
-        <p class="fin">Chacun verse ${F(n*m)} en tout et reçoit ${F(pot)} une fois. Une tontine ne rapporte pas d’intérêts.</p></div>
+        <p class="fin">Chacun verse ${F(n*m)} de cotisations en tout et reçoit ${F(pot)} une fois. Une tontine ne rapporte pas d’intérêts.</p>
+        <p class="fin">Commission TDDK : ${F(comm(n))} par membre, payée une seule fois avec la première cotisation. Elle n’entre pas dans la cagnotte.</p></div>
       <div class="pile"><button class="btn" data-act="as_creer">${ic('plus')}Préparer ma tontine avec ces réglages</button>
       <button class="btn sec" data-act="as_ticket" data-k="creation">${ic('casque')}Demander l’aide d’un conseiller</button></div></div>
     <div class="titre"><h2>Difficulté d’utilisation</h2></div><div class="m">
