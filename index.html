@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TDDK - Tontine de Dakar</title>
+<meta name="theme-color" content="#0B4A57">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B4A57'/%3E%3Ccircle cx='16' cy='7' r='3.4' fill='%23FFB81C'/%3E%3Ccircle cx='24' cy='12' r='3' fill='%23fff'/%3E%3Ccircle cx='24' cy='21' r='3' fill='%23fff'/%3E%3Ccircle cx='16' cy='26' r='3' fill='%23fff'/%3E%3Ccircle cx='8' cy='21' r='3' fill='%23fff'/%3E%3Ccircle cx='8' cy='12' r='3' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== TDDK : Tontine de Dakar =====
+   Direction : simple et calme. Fond blanc, un bleu-vert profond pour les actions, une touche de mangue
+   pour ce qui compte (le tour en cours). Peu de boîtes, de grands boutons, de la place pour respirer.
+   Le motif wax signe seulement l'écran d'accueil. Les animations sont courtes et sobres. ===== */
+:root{
+  --fond:#FFFFFF; --ext:#E9F0EE; --surf:#F3F7F5; --txt:#0E2229; --txt2:#55707A;
+  --ligne:#E1E9E6; --trait:#9DB2B4;
+  --prim:#0B4A57; --sur-prim:#FFFFFF;
+  --mangue:#FFB81C; --sur-mangue:#0E2229; --mangue-pale:#FFF3D3;
+  --bissap:#B0174F; --sur-bissap:#FFFFFF;
+  --ok:#0E7A66; --sur-ok:#FFFFFF; --focus:#B0174F;
+  --wax:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%230B4A57'/%3E%3Ccircle cx='20' cy='20' r='14' fill='none' stroke='%23FFB81C' stroke-width='3'/%3E%3Ccircle cx='20' cy='20' r='8' fill='%23B0174F'/%3E%3Ccircle cx='20' cy='20' r='3' fill='%23FFB81C'/%3E%3Cpath d='M0 0h7L0 7zM40 0h-7l7 7zM0 40h7L0 33zM40 40h-7l7-7z' fill='%23FFB81C'/%3E%3C/svg%3E");
+  --f-titre:'Unbounded','Arial Black',sans-serif;
+  --f-texte:'Figtree','Trebuchet MS',sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --fond:#0A1D23; --ext:#06141A; --surf:#11303A; --txt:#EAF4F2; --txt2:#9FBDC2;
+    --ligne:#1B3E49; --trait:#5F8890; --prim:#EAF4F2; --sur-prim:#0A1D23;
+    --mangue-pale:#3A3112; --bissap:#FF7AA6; --sur-bissap:#2A0A17;
+    --ok:#4FD1B2; --sur-ok:#05231B; --focus:#FFB81C;
+  }
+}
+:root[data-theme="dark"]{
+  --fond:#0A1D23; --ext:#06141A; --surf:#11303A; --txt:#EAF4F2; --txt2:#9FBDC2;
+  --ligne:#1B3E49; --trait:#5F8890; --prim:#EAF4F2; --sur-prim:#0A1D23;
+  --mangue-pale:#3A3112; --bissap:#FF7AA6; --sur-bissap:#2A0A17;
+  --ok:#4FD1B2; --sur-ok:#05231B; --focus:#FFB81C;
+}
+*{box-sizing:border-box;margin:0}
+:root{padding-top:env(safe-area-inset-top,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
+body{background:var(--ext);color:var(--txt);font:400 18px/1.45 var(--f-texte);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,textarea{font:inherit;color:inherit}
+h1,h2{font-family:var(--f-titre);font-weight:700;letter-spacing:-.02em;line-height:1.12}
+h1{font-size:30px;font-weight:800} h2{font-size:18px}
+.fin{font-size:15px;color:var(--txt2)}
+.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic.g{width:30px;height:30px}
+.logo{width:32px;height:32px;flex:none}
+
+/* ===== Page ===== */
+.col{max-width:480px;margin:0 auto;min-height:100vh;background:var(--fond);position:relative;padding-bottom:120px}
+@media (min-width:481px){.col{box-shadow:0 0 0 1px var(--ligne)}}
+.m{padding:0 16px;max-width:720px}
+
+/* ===== En-tête ===== */
+.haut{position:sticky;top:env(safe-area-inset-top,0px);z-index:4;background:var(--fond);display:flex;align-items:center;gap:10px;padding:10px 14px 10px 12px;min-height:64px;border-bottom:1px solid var(--ligne)}
+.haut .gauche{flex:none;display:grid;place-items:center}
+.mk{width:40px;height:40px;border-radius:12px;background:#0B4A57;display:grid;place-items:center}
+.mk .logo{width:28px;height:28px}
+.haut .tt{flex:1;min-width:0;line-height:1.15}
+.haut .tt b{font:700 17px var(--f-titre);display:block;letter-spacing:-.01em}
+.haut .tt small{font-size:14px;color:var(--txt2)}
+.ib{border:0;background:var(--surf);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none;transition:background .15s}
+.ib:hover{background:var(--ligne)}
+.bascule{border:0;background:var(--surf);border-radius:999px;padding:8px 16px;font-weight:700;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;min-height:44px;white-space:nowrap;transition:background .15s,transform .1s}
+.bascule .ic{width:20px;height:20px}
+.bascule:hover{background:var(--ligne)}
+.bascule:active{transform:scale(.97)}
+.bascule[aria-pressed="true"]{background:var(--prim);color:var(--sur-prim)}
+.m .bascule{white-space:normal;text-align:left;justify-content:flex-start;max-width:100%;line-height:1.25;padding-top:10px;padding-bottom:10px}
+:is(.bascule,.btn,.tab,.ib,.choix button,.row.lien,.op):focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+
+/* ===== Boutons ===== */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;border:0;border-radius:999px;background:var(--prim);color:var(--sur-prim);padding:12px 22px;font-weight:700;font-size:19px;cursor:pointer;text-decoration:none;transition:transform .1s,background .15s,filter .15s}
+.btn:hover:not(:disabled){filter:brightness(1.15)}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn.sec{background:var(--surf);color:var(--txt)}
+.btn.sec:hover:not(:disabled){background:var(--ligne);filter:none}
+.btn.ocre{background:var(--mangue);color:var(--sur-mangue)}
+.btn:disabled{background:var(--surf);color:var(--txt2);cursor:not-allowed}
+.btn.petit{min-height:48px;font-size:16px}
+.pile{display:grid;gap:12px;margin-top:16px}
+.duo2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+
+/* ===== Champs ===== */
+.champ{display:block;margin-top:22px}
+.champ>span{display:block;font-weight:700;margin-bottom:6px;font-size:16px}
+.champ input,.champ textarea{width:100%;background:var(--surf);border:2px solid transparent;border-radius:14px;padding:8px 16px;font:600 22px var(--f-texte);outline:none;min-height:56px;transition:border-color .15s,background .15s}
+.champ textarea{font:400 18px/1.4 var(--f-texte);min-height:110px;resize:vertical;padding:12px 16px}
+.champ input:hover,.champ textarea:hover{border-color:var(--ligne)}
+.champ input:focus,.champ textarea:focus{border-color:var(--prim);background:var(--fond)}
+::placeholder{color:var(--txt2);font-weight:400}
+.tel{display:flex;gap:8px}
+.tel b{display:grid;place-items:center;padding:0 14px;background:var(--surf);border-radius:14px;font:700 20px var(--f-texte);min-height:56px}
+.champ input.code{text-align:center;letter-spacing:.5em;padding-left:.5em;font:800 32px var(--f-titre);min-height:72px}
+.choix{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.choix button{border:2px solid transparent;border-radius:999px;background:var(--surf);padding:10px 18px;font-weight:600;cursor:pointer;min-height:48px;transition:background .15s,border-color .15s,transform .1s}
+.choix button:hover{border-color:var(--trait)}
+.choix button:active{transform:scale(.97)}
+.choix button[aria-pressed="true"]{background:var(--prim);color:var(--sur-prim)}
+.err{color:var(--bissap);font-weight:700;margin-top:12px;min-height:1.4em}
+
+/* ===== Accueil d'entrée : le motif wax ===== */
+.bandeau{background:var(--wax);background-size:48px 48px;padding:34px 16px}
+.plaque{display:inline-flex;align-items:center;gap:16px;background:#083642;color:#fff;border-radius:26px;padding:16px 26px 16px 18px}
+.plaque .logo{width:60px;height:60px}
+.plaque .wm{display:grid;gap:2px}
+.plaque .wm b{font:800 clamp(36px,11vw,50px)/1 var(--f-titre);letter-spacing:.01em}
+.plaque .wm span{font-size:18px;font-weight:600}
+
+/* ===== Bloc principal de l'accueil ===== */
+.hero{margin:14px 16px 0;border-radius:28px;background:var(--prim);color:var(--sur-prim);padding:22px 20px}
+.hero small{font-size:15px;opacity:.85}
+.hero .gros{font:800 clamp(38px,12vw,52px)/1.05 var(--f-titre);margin:6px 0 4px;letter-spacing:-.02em}
+.hero p{opacity:.92}
+.hero .btn{margin-top:18px}
+
+/* ===== Listes à plat ===== */
+.row{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;border-bottom:1px solid var(--ligne);min-height:72px;padding:12px 16px;width:100%;text-align:left}
+.row .n{width:44px;height:44px;border-radius:50%;background:var(--surf);display:grid;place-items:center;font:700 16px var(--f-titre)}
+.row .n .ic.g{width:22px;height:22px}
+.row .c{min-width:0;font-weight:700}
+.row .c small{display:block;font-size:15px;font-weight:400;color:var(--txt2)}
+.row .d{display:flex;gap:6px;align-items:center}
+.row.moi .n{background:var(--prim);color:var(--sur-prim)}
+.row.ben{background:var(--mangue-pale)}
+.row.ben .n{background:var(--mangue);color:var(--sur-mangue)}
+.row.lien{border:0;border-bottom:1px solid var(--ligne);background:transparent;cursor:pointer;font:inherit;color:inherit;transition:background .15s}
+.row.lien:hover{background:var(--surf)}
+.titre{padding:28px 16px 8px}
+.m .titre{padding-left:0;padding-right:0}
+.st{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 12px 3px 8px;font-weight:700;font-size:15px;white-space:nowrap}
+.st .ic{width:17px;height:17px;stroke-width:2.6}
+.st.paye{background:var(--ok);color:var(--sur-ok)}
+.st.cours{background:var(--mangue);color:var(--sur-mangue)}
+.st.attente{background:var(--surf);color:var(--txt)}
+.st.echoue{background:var(--bissap);color:var(--sur-bissap)}
+
+/* ===== Le tour en cours ===== */
+.tour{margin:14px 16px 0;border-radius:28px;background:var(--mangue);color:var(--sur-mangue);padding:22px 20px}
+.tour .nom{font:800 clamp(30px,9vw,42px)/1.05 var(--f-titre);letter-spacing:-.02em;margin:6px 0 10px;overflow-wrap:anywhere}
+.cases{display:flex;gap:4px;margin-top:16px}
+.cases i{flex:1;height:8px;border-radius:99px;background:color-mix(in srgb,var(--sur-mangue) 20%,transparent);display:block}
+.cases i.on{background:var(--sur-mangue)}
+.inv{margin:12px 16px 0;border-radius:22px;background:var(--mangue-pale);padding:16px}
+.tdb{display:grid;grid-template-columns:repeat(3,1fr);margin-top:18px}
+.tdb div{padding:0 10px 0 0;font-size:15px;color:var(--txt2)}
+.tdb b{display:block;font:800 26px var(--f-titre);color:var(--txt)}
+.tdb .alerte,.tdb .alerte b{color:var(--bissap)}
+.bl{margin:0 16px;padding:16px 0;border-bottom:1px solid var(--ligne)}
+.bl h2{font-size:17px;margin-bottom:8px}
+.bl p+p{margin-top:6px}
+.avert{margin:14px 16px 0;padding-left:12px;border-left:3px solid var(--mangue);font-size:15px;color:var(--txt2)}
+.m .avert,.m .bl{margin-left:0;margin-right:0}
+.avert p+p{margin-top:6px}
+.prem{display:inline-flex;align-items:center;gap:4px;background:var(--mangue);color:var(--sur-mangue);border-radius:999px;padding:1px 9px 1px 6px;font-size:13px;font-weight:700}
+.prem .ic{width:13px;height:13px}
+.cmp{display:grid;grid-template-columns:1fr 92px 112px;font-size:15px;margin-top:6px}
+.cmp>div{padding:10px 8px;border-bottom:1px solid var(--ligne)}
+.cmp>div:nth-child(3n){background:var(--mangue-pale)}
+.cmp .h{font-weight:800}
+.tarif{display:grid;grid-template-columns:1fr auto;font-size:16px}
+.tarif>div{padding:12px 4px;border-bottom:1px solid var(--ligne)}
+.tarif>div:nth-child(2n){font:700 16px var(--f-titre);text-align:right;white-space:nowrap}
+.jauge{height:10px;border-radius:999px;background:var(--ligne);overflow:hidden;margin-top:10px}
+.jauge i{display:block;height:100%;border-radius:999px;background:var(--ok);transform-origin:left}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.tag{background:var(--surf);border-radius:999px;padding:2px 12px;font-size:15px;font-weight:600}
+.gros-m{font:800 clamp(24px,7.5vw,34px)/1.1 var(--f-titre);margin-top:4px}
+
+/* ===== Score, épargne, assistance ===== */
+.score{margin:14px 16px 0;border-radius:28px;background:var(--prim);color:var(--sur-prim);padding:22px 20px}
+.score .gros{font:800 clamp(44px,14vw,64px)/1 var(--f-titre)}
+.score .gros small{font-size:.4em;font-weight:700;opacity:.85}
+.score .niv{display:inline-flex;align-items:center;gap:6px;margin:12px 0 4px;background:var(--mangue);color:var(--sur-mangue);border-radius:999px;padding:3px 12px;font-weight:700}
+.score .jauge{background:color-mix(in srgb,var(--sur-prim) 25%,transparent)}
+.score .jauge i{background:var(--mangue)}
+.score p{margin-top:8px;font-size:16px}
+.crit{margin:0 16px;padding:16px 0;border-bottom:1px solid var(--ligne)}
+.crit .pts{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.crit h2{font-size:16px}
+.crit .pts b{font:800 18px var(--f-titre);white-space:nowrap}
+.crit .regle{font-size:15px;color:var(--txt2);margin-top:8px}
+
+/* ===== Navigation du bas ===== */
+.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);display:grid;grid-template-columns:repeat(3,1fr);background:var(--fond);border-top:1px solid var(--ligne);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+.tab{border:0;background:transparent;border-radius:16px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;font-size:14px;cursor:pointer;min-height:62px;color:var(--txt2);transition:color .15s}
+.tab .ic{width:56px;height:32px;padding:4px 16px;border-radius:16px;transition:background .2s}
+.tab[aria-current="page"]{color:var(--txt);font-weight:700}
+.tab[aria-current="page"] .ic{background:var(--mangue);color:var(--sur-mangue)}
+.tab:hover:not([aria-current]) .ic{background:var(--surf)}
+
+/* ===== Feuille de dialogue et message ===== */
+.voile{position:fixed;inset:0;background:rgba(6,20,26,.55);z-index:10;display:flex;align-items:flex-end;justify-content:center;animation:fondu .2s}
+.feuille{width:min(480px,100%);max-height:92vh;overflow:auto;background:var(--fond);border-radius:28px 28px 0 0;padding:24px 18px calc(24px + env(safe-area-inset-bottom,0px));animation:monter .3s cubic-bezier(.2,.8,.2,1)}
+.feuille h2{font-size:22px}
+.op{display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center;border:0;border-bottom:1px solid var(--ligne);background:transparent;width:100%;text-align:left;cursor:pointer;padding:12px 4px;min-height:72px;transition:background .15s}
+.op:hover{background:var(--surf)}
+.op i{display:grid;place-items:center;width:56px;height:56px;border-radius:16px;background:var(--prim);color:var(--sur-prim);font:800 24px var(--f-titre);font-style:normal}
+.op[data-op="Wave"] i{background:#1DC8FF;color:#0E2229}
+.op[data-op="Orange Money"] i{background:#FF7900;color:#0E2229}
+.op[data-op="Free Money"] i{background:#D0021B;color:#fff}
+.op span{font-weight:700;font-size:19px}
+.recu dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:16px 0;padding:14px 0;border-top:1px solid var(--ligne);border-bottom:1px solid var(--ligne)}
+.recu dt{font-weight:600;color:var(--txt2)} .recu dd{margin:0;text-align:right;font-weight:700}
+.recu .ok-gros{width:64px;height:64px;border-radius:50%;background:var(--ok);color:var(--sur-ok);display:grid;place-items:center;margin-bottom:12px;animation:pop .4s cubic-bezier(.2,.8,.2,1)}
+.recu .ok-gros .ic{width:34px;height:34px;stroke-width:3}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(440px,calc(100% - 32px));background:var(--txt);color:var(--fond);border-radius:18px;padding:14px 18px;font-weight:600;z-index:20;animation:toastin .25s ease}
+.toast[hidden]{display:none}
+
+/* ===== Détails de vérification, photos, listes de contrôle ===== */
+.av{width:56px;height:56px;border-radius:50%;background:var(--prim);color:var(--sur-prim);display:grid;place-items:center;font:700 19px var(--f-titre);flex:none}
+.id-l{display:flex;gap:14px;align-items:center}
+.cache{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+label.btn{position:relative}
+.btn:has(.cache:focus-visible){outline:3px solid var(--focus);outline-offset:3px}
+.phv{border-radius:20px;min-height:140px;display:grid;place-items:center;overflow:hidden;background:var(--surf);margin-top:8px;color:var(--txt2)}
+.phv img{width:100%;max-height:260px;object-fit:cover;display:block}
+.phv svg{width:100%;max-height:210px;display:block}
+.ck{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}
+.ck li{display:flex;gap:10px;align-items:flex-start;font-size:16px}
+.ck .ic{width:20px;height:20px;flex:none;color:var(--ok);margin-top:2px}
+.ck li.non,.ck li.non .ic{color:var(--txt2)}
+ul.pt{margin:10px 0 0 20px;display:grid;gap:8px}
+.pres{margin-top:12px;border-radius:16px;padding:14px 16px;font-weight:700;background:var(--mangue-pale)}
+.pres.ok{background:var(--ok);color:var(--sur-ok)}
+.qui{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px;font-size:15px}
+.qui b{display:block;margin-bottom:4px;font-size:16px}
+
+/* ===== Mouvement : court et sobre ===== */
+@keyframes entree{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes grandir{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes monter{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fondu{from{opacity:0}to{opacity:1}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes toastin{from{opacity:0;transform:translate(-50%,12px)}to{opacity:1;transform:translate(-50%,0)}}
+.col.anim>*:not(.haut){animation:entree .34s cubic-bezier(.2,.7,.2,1) both}
+.col.anim>:nth-child(3){animation-delay:.04s}
+.col.anim>:nth-child(4){animation-delay:.08s}
+.col.anim>:nth-child(5){animation-delay:.12s}
+.col.anim>:nth-child(n+6){animation-delay:.16s}
+.col.anim .jauge i,.col.anim .cases i.on{animation:grandir .8s cubic-bezier(.2,.7,.2,1) .15s both}
+.col.anim .st.paye .ic{animation:pop .4s ease .2s both}
+
+/* ===== Ordinateur ===== */
+@media (min-width:900px){
+  .col{max-width:1040px}
+  .tabs{width:min(520px,100%);bottom:16px;border:1px solid var(--ligne);border-radius:26px}
+  .duo{display:grid;grid-template-columns:minmax(380px,5fr) 6fr;gap:0 28px;align-items:start}
+  h1{font-size:40px}
+  .tour .nom{font-size:46px}
+  .toast{bottom:112px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast" class="toast" role="status" hidden></div>
+<script>
+/* ===== Outils ===== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const F = n => Number(n).toLocaleString('fr-FR') + '\u00a0F';
+const auj = () => new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+const ICONES = {
+  check:'<path d="M4 12l5 5L20 6"/>', cross:'<path d="M6 6l12 12M18 6L6 18"/>',
+  clock:'<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/>', dash:'<circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/>',
+  voix:'<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9a4 4 0 0 1 0 6"/>', envoi:'<path d="M4 12h15M13 6l6 6-6 6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', retour:'<path d="M20 12H5M11 6l-6 6 6 6"/>',
+  maison:'<path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/>',
+  pousse:'<path d="M12 21v-9"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6z"/><path d="M12 15c0-3-2-5-6-5 0 3 2 5 6 5z"/>',
+  etoile:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  cadenas:'<path d="M6 11h12v9H6z"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  partage:'<path d="M5 12v7h14v-7"/><path d="M12 15V4M8 8l4-4 4 4"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  pieces:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/>',
+  eff:'<path d="M9 5h11v14H9L3 12z"/><path d="M12 9l5 6M17 9l-5 6"/>', tour:'<path d="M4 12a8 8 0 1 1 3 6.2"/><path d="M4 19v-6h6"/>'
+};
+const ic = (n,c='') => `<svg class="ic ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONES[n]}</svg>`;
+const LIB = {paye:['Payé','check'],cours:['En cours','clock'],attente:['À payer','dash'],echoue:['Échoué','cross']};
+const FREQ = {jour:'chaque jour',semaine:'chaque semaine',quinzaine:'tous les 15 jours',mois:'chaque mois'};
+const QUARTIERS = ['Médina','Pikine','Parcelles','Yoff','Grand Yoff','Almadies','Guédiawaye','Autre'];
+const LIM = {tontines:2, gratuit:12, premium:40};
+/* Commission TDDK : uniquement pour les tontines, par membre, payée une seule fois (avec la première cotisation).
+   200 F jusqu'à 10 membres, 150 F au-delà. Les projets d'investissement passent par l'abonnement Premium. */
+const COMM = {seuil:10, bas:200, haut:150};
+const comm = n => n <= COMM.seuil ? COMM.bas : COMM.haut;
+
+/* ===== État, enregistré sur cet appareil (localStorage) ===== */
+const KEY = 'tontine-cahier-v1';
+const NEUF = {ecran:'accueil',etape:1,tmp:{},comptes:{},donnees:{},tel:null,onglet:'tontines',vue:'liste',gid:null,admin:false,erreur:'',saisie:'',creerType:'tontine'};
+let S; try{ S = Object.assign({}, NEUF, JSON.parse(localStorage.getItem(KEY) || '{}')); }catch(e){ S = Object.assign({}, NEUF); }
+if (S.tel && !S.comptes[S.tel]) S.ecran = 'accueil';
+const UI = {feuille:null};
+let LECT = '';
+const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} };
+const user = () => S.comptes[S.tel];
+const D = () => S.donnees[S.tel];
+const G = () => D().groupes.find(g => g.id === S.gid);
+
+function demoGroupe(p){
+  const n = ['Fatou','Moussa','Mariama','Khady',p,'Ousmane','Ibrahima','Aminata'], st = ['paye','paye','paye','paye','attente','cours','echoue','paye'];
+  return {id:'g'+Date.now(),type:'tontine',nom:'Tontine des Parcelles',montant:5000,freq:'semaine',ordre:'tirage',tour:4,graine:null,envoye:false,rappel:'push',
+    membres:n.map((x,i)=>({nom:x,st:st[i],admin:i===0,moi:i===4,retard:i===6?2:0})),
+    histo:[{t:3,txt:'Mariama a reçu 40\u00a0000\u00a0F',op:'',d:'lun. 9 nov.'},{t:2,txt:'Moussa a reçu 40\u00a0000\u00a0F',op:'',d:'lun. 2 nov.'}]};
+}
+function toast(t){ const e=$('toast'); e.textContent=t; e.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>e.hidden=true,3400); }
+function lire(){
+  if (!('speechSynthesis' in window)) return toast('La lecture à voix haute n’est pas disponible sur cet appareil.');
+  speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(LECT); u.lang = 'fr-FR'; u.rate = .92; speechSynthesis.speak(u);
+}
+function premium(msg){ toast(msg + ' Fonction Premium : voir l’onglet Plus.'); S.onglet = 'plus'; render(); }
+
+/* ===== Composants ===== */
+const LOGO = '<svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5"/><circle cx="16" cy="5" r="3.4" fill="#FFB81C"/><circle cx="25.5" cy="10.5" r="3" fill="#fff"/><circle cx="25.5" cy="21.5" r="3" fill="#fff"/><circle cx="16" cy="27" r="3" fill="#fff"/><circle cx="6.5" cy="21.5" r="3" fill="#fff"/><circle cx="6.5" cy="10.5" r="3" fill="#fff"/></svg>';
+const haut = (t, s, retour) => `<header class="haut"><div class="gauche">${retour?`<button class="ib" ${retour} aria-label="Retour">${ic('retour')}</button>`:`<span class="mk">${LOGO}</span>`}</div>
+  <div class="tt"><b>${esc(t)}</b>${s?`<small>${esc(s)}</small>`:''}</div>
+  <button class="bascule" data-act="lire">${ic('voix')}Écouter</button></header>`;
+const choix = (ch, vals, cur) => `<div class="choix">${vals.map(([v,l])=>`<button type="button" data-act="set" data-ch="${ch}" data-v="${esc(v)}" aria-pressed="${String(cur)===String(v)}">${esc(l)}</button>`).join('')}</div>`;
+const codeChamp = (masque, lib) => `<label class="champ"><span>${lib}</span><input class="code" type="${masque?'password':'text'}" data-code inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="${masque?'off':'one-time-code'}" value="${esc(S.saisie)}"></label>`;
+const champ = (lib, f, extra='') => `<label class="champ"><span>${lib}</span><input type="text" data-f="${f}" value="${esc(S.tmp[f]||'')}" ${extra}></label>`;
+const telChamp = (lib, f) => `<label class="champ"><span>${lib}</span><div class="tel"><b>+221</b><input type="tel" data-f="${f}" inputmode="numeric" maxlength="12" autocomplete="tel-national" value="${esc(S.tmp[f]||'')}"></div></label>`;
+const err = () => `<p class="err" role="alert">${esc(S.erreur)}</p>`;
+
+/* ===== Écrans d'entrée ===== */
+function vAccueil(){
+  LECT = 'Bienvenue sur TDDK, Tontine de Dakar. Appuie sur Créer mon compte pour commencer. Si tu as déjà un compte, appuie sur J’ai déjà un compte.';
+  const lg = (c,n,ok) => `<div class="row"><div class="n">${c}</div><div class="c">${n}</div><div class="d">${ok?`<span class="st paye">${ic('check')}Choisi</span>`:'<span class="st attente">Bientôt</span>'}</div></div>`;
+  return `<div class="col">${haut('Bienvenue')}
+    <div class="bandeau"><div class="plaque">${LOGO}<div class="wm"><b>TDDK</b><span>Tontine de Dakar</span></div></div></div>
+    <div class="m"><h1 style="margin-top:26px">Ta tontine,<br>claire pour tous.</h1>
+    <p style="margin-top:12px">Qui a payé, à qui est le tour : tout le groupe voit la même page. Chaque écran se lit à voix haute.</p></div>
+    <div class="titre"><h2>Langue</h2></div>
+    ${lg('FR','Français',true)}${lg('WO','Wolof')}${lg('PU','Pulaar')}${lg('SE','Sereer')}
+    <div class="m"><p class="fin" style="margin-top:10px">Wolof, pulaar et sereer arrivent avec des textes relus par des locuteurs.</p>
+      <div class="pile" style="margin-top:24px">
+      <button class="btn" data-act="vers" data-v="inscription">${ic('plus')}Créer mon compte</button>
+      <button class="btn sec" data-act="vers" data-v="connexion">${ic('user')}J’ai déjà un compte</button></div></div></div>`;
+}
+const RETOUR_ACC = 'data-act="vers" data-v="accueil"';
+function vInscription(){
+  const T = S.tmp;
+  if (S.etape === 1){
+    LECT = 'Crée ton compte. Écris ton prénom, ton nom et ton numéro de téléphone. Choisis ton quartier. Puis appuie sur Recevoir mon code SMS.';
+    return `<div class="col">${haut('Créer mon compte','Étape 1 sur 3',RETOUR_ACC)}<div class="m">
+      ${champ('Prénom','prenom','autocomplete="given-name"')}${champ('Nom','nom','autocomplete="family-name"')}${telChamp('Numéro de téléphone','tel')}
+      <div class="champ"><span>Mon quartier</span>${choix('quartier',QUARTIERS.map(q=>[q,q]),T.quartier||'')}</div>
+      <div class="champ"><span>Je suis</span>${choix('profil',[['particulier','Un particulier'],['investisseur','Un investisseur']],T.profil||'particulier')}</div>
+      ${err()}<button class="btn" data-act="etape1">${ic('envoi')}Recevoir mon code SMS</button></div></div>`;
+  }
+  if (S.etape === 2){
+    LECT = 'Un code à 4 chiffres a été envoyé par SMS. Tape-le, puis appuie sur Valider mon code.';
+    return `<div class="col">${haut('Code reçu par SMS','Étape 2 sur 3','data-act="etape" data-v="1"')}<div class="m">
+      <p style="margin-top:20px">Code envoyé au <b>+221 ${esc(T.tel9)}</b>.</p>
+      ${codeChamp(false,'Code reçu par SMS')}${err()}<button class="btn" data-act="valider">${ic('check')}Valider mon code</button></div></div>`;
+  }
+  LECT = T.pin1 ? 'Retape ton code secret pour être sûr.' : 'Crée ton code secret à 4 chiffres. Tu l’utiliseras pour entrer. Ne le dis à personne.';
+  return `<div class="col">${haut(T.pin1?'Retape ton code secret':'Crée ton code secret','Étape 3 sur 3','data-act="etape" data-v="2"')}<div class="m">
+    <p style="margin-top:20px">${T.pin1?'Retape les mêmes 4 chiffres.':'Choisis 4 chiffres faciles à retenir, mais que personne ne devine.'}</p>
+    ${codeChamp(true,T.pin1?'Retape ton code secret':'Ton code secret')}${err()}<button class="btn" data-act="valider">${ic('check')}${T.pin1?'Créer mon compte':'Continuer'}</button></div></div>`;
+}
+function vConnexion(){
+  LECT = 'Écris ton numéro de téléphone, puis tape ton code secret à 4 chiffres.';
+  return `<div class="col">${haut('Me connecter','',RETOUR_ACC)}<div class="m">
+    ${telChamp('Numéro de téléphone','tel')}
+    ${codeChamp(true,'Code secret')}${err()}
+    <div class="pile"><button class="btn" data-act="valider">${ic('envoi')}Entrer</button>
+    <button class="btn sec" data-act="vers" data-v="inscription">Créer un compte</button></div></div></div>`;
+}
+
+/* ===== Application ===== */
+function vListe(){
+  const u = user(), d = D(), nT = d.groupes.length;
+  const due = d.groupes.map(g=>({g,me:g.membres.find(x=>x.moi)})).find(x=>x.me && (x.me.st==='attente' || x.me.st==='echoue'));
+  LECT = `Bonjour ${u.prenom}. ` + (due ? `Tu dois payer ${due.g.montant} francs pour ${due.g.nom}.` : nT ? 'Tu n’as rien à payer.' : 'Tu n’as pas encore de tontine.') + (d.invits.length ? ` Tu as ${d.invits.length} invitation.` : '');
+  const hero = due
+    ? `<section class="hero"><small>À payer</small><div class="gros">${F(due.g.montant)}</div><p>${esc(due.g.nom)}</p><button class="btn ocre" data-act="payerGroupe" data-id="${due.g.id}">${ic('envoi')}Payer maintenant</button></section>`
+    : nT ? `<section class="hero"><small>Tout est à jour</small><div class="gros">Rien à payer</div><p>Tes cotisations sont payées.</p></section>`
+    : `<section class="hero"><small>Bienvenue</small><div class="gros">Ta première tontine</div><p>Crée un groupe, ou accepte une invitation.</p><button class="btn ocre" data-act="creer" data-t="tontine">${ic('plus')}Créer une tontine</button></section>`;
+  const inv = d.invits.map(i=>`<div class="inv"><b>${esc(i.de)} t’invite</b><p>${esc(i.nom)}, ${F(i.montant)} ${FREQ[i.freq]}, ${i.n} personnes</p><p class="fin">Commission TDDK : ${F(comm(i.n))} par membre, payée une seule fois.</p>
+    <div class="duo2"><button class="btn" data-act="accepter" data-i="${i.id}">${ic('check')}Accepter</button><button class="btn sec" data-act="refuser" data-i="${i.id}">${ic('cross')}Refuser</button></div></div>`).join('');
+  const lignes = d.groupes.map(g=>{
+    const me = g.membres.find(x=>x.moi), [lib,ico] = LIB[me.st];
+    return `<button class="row lien" data-act="ouvrir" data-id="${g.id}"><div class="n">${ic('pieces','g')}</div>
+      <div class="c"><b>${esc(g.nom)}</b><small>Tour ${g.tour} sur ${g.membres.length}, ${F(g.montant)} ${FREQ[g.freq]}</small></div>
+      <div class="d"><span class="st ${me.st}">${ic(ico)}${lib}</span></div></button>`; }).join('');
+  const bloque = nT >= LIM.tontines && !u.premium;
+  return `<div class="col">${haut('Bonjour '+u.prenom,'Mes tontines')}${hero}
+    ${d.invits.length?`<div class="titre"><h2>Invitations</h2></div>${inv}`:''}
+    ${nT?`<div class="titre"><h2>Mes tontines</h2></div>${lignes}
+    <div class="m"><div class="pile" style="margin-top:22px"><button class="btn sec" data-act="creer" data-t="tontine">${bloque?ic('cadenas'):ic('plus')}Créer une tontine</button></div>
+    ${bloque?`<p class="fin" style="margin-top:8px">Gratuit : ${LIM.tontines} tontines. Illimité avec Premium.</p>`:''}</div>`:''}</div>`;
+}
+
+function ligneMembre(m,i,g,adm){
+  const [lib,ico] = LIB[m.st], b = i === g.tour-1;
+  const man = adm && g.ordre==='manuel' && g.tour===1 ? `<button class="bascule" data-act="haut" data-i="${i}" aria-label="Monter ${esc(m.nom)}">↑</button><button class="bascule" data-act="bas" data-i="${i}" aria-label="Descendre ${esc(m.nom)}">↓</button>` : '';
+  return `<div class="row${m.moi?' moi':''}${b?' ben':''}"><div class="n">${i+1}</div>
+    <div class="c"><b>${esc(m.nom)}${m.moi?' (moi)':''}</b>${m.admin?'<small>Administrateur</small>':''}${b?'<small>Reçoit ce tour</small>':''}${m.retard&&m.st!=='paye'?`<small>${m.retard} jours de retard</small>`:''}</div>
+    <div class="d">${man}<span class="st ${m.st}">${ic(ico)}${lib}</span></div></div>`;
+}
+
+function vGroupe(){
+  const g = G(), u = user(); if (!g){ S.vue='liste'; return vListe(); }
+  const n = g.membres.length, b = g.membres[g.tour-1], me = g.membres.find(x=>x.moi);
+  const p = g.membres.filter(x=>x.st==='paye').length, nR = g.membres.filter(x=>x.st==='echoue').length, nA = g.membres.filter(x=>x.st==='attente'||x.st==='cours').length;
+  const adm = !!me.admin || S.admin, pot = g.montant*n, cm = comm(n), c = me.comm ? 0 : cm;
+  LECT = `${g.nom}. Tour ${g.tour} sur ${n}. Le tour revient à ${b.nom}. ${p} personnes sur ${n} ont payé. ` + (me.st==='paye'?'Ta cotisation est payée.':me.st==='cours'?'Ton paiement est en cours.':`Tu dois encore payer ${g.montant+c} francs${c?`, dont ${c} de commission, payée une seule fois`:''}.`);
+  const btnPay = me.st==='paye' ? `<button class="btn" disabled>${ic('check')}Ta cotisation est payée</button>`
+    : me.st==='cours' ? `<button class="btn" disabled>${ic('clock')}Paiement en cours chez l’opérateur</button>`
+    : `<button class="btn ocre" data-act="payer">${ic('envoi')}Payer ${F(g.montant+c)}</button>`;
+  let admin = '';
+  if (adm){
+    const tirage = g.ordre==='tirage' && !g.graine ? `<button class="btn sec" data-act="tirer">${ic('tour')}Tirer l’ordre au sort</button>` : '';
+    const graine = g.graine ? `<p class="fin">Tirage public, graine ${g.graine}. Avec cette graine, chacun retrouve le même ordre.</p>` : '';
+    const envoi = !g.envoye ? `<button class="btn sec" data-act="envoyer" ${p<n?'disabled':''}>${ic('envoi')}Envoyer ${F(pot)} à ${esc(b.nom)}</button>` : `<button class="btn sec" data-act="recu">${esc(b.nom)} confirme la réception (démo)</button>`;
+    admin = `<div class="titre" style="padding-left:0"><h2>Administrateur</h2></div>${tirage}${graine}${envoi}
+      <div class="champ" style="margin-top:6px"><span>Rappel des retardataires</span><div class="choix">
+        <button type="button" data-act="canal" data-v="push" aria-pressed="${g.rappel==='push'}">Notification</button>
+        <button type="button" data-act="canal" data-v="sms" aria-pressed="${g.rappel==='sms'}">SMS ${u.premium?'':'<span class="prem">'+ic('cadenas')+'Premium</span>'}</button></div></div>
+      <button class="btn sec" data-act="rappel" ${nA+nR?'':'disabled'}>${ic('clock')}Rappeler ${nA+nR} personnes</button>
+      ${telChamp('Inviter un membre','inv')}<button class="btn sec" data-act="inviter">${ic('plus')}Envoyer l’invitation</button>`;
+  }
+  const histo = g.histo.slice(0,5).map(h=>`<div class="row"><div class="n">${h.t}</div><div class="c">${esc(h.txt)}${h.op?`<small>${esc(h.op)}</small>`:''}</div><div class="d fin">${esc(h.d)}</div></div>`).join('');
+  return `<div class="col">${haut(g.nom,`Tour ${g.tour} sur ${n}, ${F(g.montant)} ${FREQ[g.freq]}`,'data-act="liste"')}
+  <div class="duo"><div>
+    <section class="tour" aria-live="polite"><div>Ce tour revient à</div><div class="nom">${esc(b.nom)}</div>
+      <div><b>${F(pot)}</b> à recevoir. ${p} sur ${n} ont payé.</div><div class="cases" aria-hidden="true">${g.membres.map(x=>`<i class="${x.st==='paye'?'on':''}"></i>`).join('')}</div></section>
+    <div class="m"><div class="tdb" role="group" aria-label="Tableau de bord"><div><b>${p}/${n}</b>payés</div><div class="${nR?'alerte':''}"><b>${nR}</b>en retard</div><div><b>${nA}</b>à payer</div></div>
+      <p class="fin" style="margin-top:10px">Collecté : ${F(p*g.montant)} sur ${F(pot)}.</p>
+      <p class="fin" style="margin-top:6px">${me.comm?`Ta commission TDDK de ${F(me.comm)} est déjà payée : elle ne se paie qu’une seule fois.`:`Commission TDDK : <b>${F(cm)}</b> par membre (groupe de ${n} membres), payée une seule fois avec ta première cotisation. Elle n’entre pas dans la cagnotte.`}</p>
+      <div class="pile">${btnPay}${me.admin?'':`<button class="bascule" data-act="vue" aria-pressed="${S.admin}" style="justify-self:start">Vue administrateur (démo)</button>`}${admin?`<div class="pile" style="margin-top:4px">${admin}</div>`:''}</div></div>
+  </div><div>
+    <div class="titre"><h2>Qui a payé</h2></div>${g.membres.map((m,i)=>ligneMembre(m,i,g,adm)).join('')}
+    <div class="titre"><h2>Historique</h2></div>${histo || '<p class="m">Aucun paiement pour l’instant.</p>'}
+    <div class="m"><div class="pile"><button class="btn sec petit" data-act="exporter">${u.premium?ic('partage'):ic('cadenas')}Exporter l’historique <span class="prem">${u.premium?'Premium':ic('cadenas')+'Premium'}</span></button></div></div>
+  </div></div></div>`;
+}
+
+function vCreer(){
+  const T = S.tmp;
+  LECT = 'Crée une tontine. Donne un nom, choisis le montant, puis la fréquence.';
+  const mt = T.montantLibre ? '' : (T.montant||'5000');
+  return `<div class="col">${haut('Nouvelle tontine','','data-act="liste"')}<div class="m">
+    ${champ('Nom du groupe','nom','maxlength="30"')}
+    <div class="champ"><span>Cotisation par personne</span>${choix('montant',[2000,5000,10000,25000,50000].map(v=>[v,F(v)]),mt)}
+      <input type="number" data-f="montantLibre" inputmode="numeric" min="500" step="500" placeholder="Autre montant" value="${esc(T.montantLibre||'')}" style="margin-top:8px"></div>
+    <div class="champ"><span>Fréquence</span>${choix('freq',Object.keys(FREQ).map(k=>[k,FREQ[k]]),T.freq||'semaine')}</div>
+    <div class="champ"><span>Ordre des tours</span>${choix('ordre',[['tirage','Tirage au sort'],['manuel','Choix manuel']],T.ordre||'tirage')}</div>
+    <div class="avert"><p><b>Commission TDDK</b>, payée une seule fois par chaque membre : ${F(COMM.bas)} jusqu’à ${COMM.seuil} membres, ${F(COMM.haut)} au-delà de ${COMM.seuil}.</p></div>
+    ${err()}<div class="pile"><button class="btn" data-act="valcreer">${ic('check')}Créer la tontine</button></div></div></div>`;
+}
+
+/* L'onglet Investir est rempli par verification.js (projets d'investissement) */
+function vInvest(){ LECT = 'Investir. Les projets arrivent ici.'; return `<div class="col">${haut('Investir','Projets')}<div class="m"><p style="margin-top:24px">Chargement des projets…</p></div></div>`; }
+
+function vPlus(){
+  const u = user();
+  LECT = u.premium ? 'Tu as Premium. Tu peux investir dans des projets et créer autant de tontines que tu veux.' : 'Gratuit : 2 tontines, 12 membres, rappels par notification. Premium ajoute les SMS, les projets d’investissement et l’export.';
+  const L = [['Tontines','2','Illimitées'],['Membres par tontine','12','40'],['Rappels','Notification','Notif. + SMS'],['Historique','Lecture','Export'],['Projets d’investissement','Voir','Investir'],['Score de fiabilité','Non','Partageable avec accord']];
+  return `<div class="col">${haut('Plus','Mon compte')}
+    <div class="titre"><h2>${esc(u.prenom)} ${esc(u.nom)}</h2></div>
+    <div class="row"><div class="n">${ic('user')}</div><div class="c">+221 ${esc(u.tel)}<small>${esc(u.quartier)}, ${u.profil==='investisseur'?'investisseur':'particulier'}</small></div></div>
+    <div class="row"><div class="n">${ic('voix')}</div><div class="c">Langue : Français<small>Wolof, pulaar, sereer : bientôt</small></div></div>
+    <div class="titre"><h2>${u.premium?'Premium actif':'Gratuit, avec Premium en option'}</h2></div>
+    <div class="m"><div class="cmp"><div class="h">Fonction</div><div class="h">Gratuit</div><div class="h">Premium</div>${L.map(r=>`<div>${r[0]}</div><div>${r[1]}</div><div>${r[2]}</div>`).join('')}</div>
+      <div class="titre"><h2>Commission par tontine</h2></div>
+      <div class="tarif"><div>Groupe de ${COMM.seuil} membres ou moins</div><div>${F(COMM.bas)} par membre</div><div>Groupe de plus de ${COMM.seuil} membres</div><div>${F(COMM.haut)} par membre</div></div>
+      <p class="fin" style="margin-top:10px">Chaque membre la paie une seule fois, avec sa première cotisation. Elle est la même en Gratuit et en Premium. Les projets d’investissement n’ont pas de commission : ils sont inclus dans l’abonnement Premium.</p>
+      <div class="pile"><button class="btn ${u.premium?'sec':'ocre'}" data-act="prem">${ic('etoile')}${u.premium?'Revenir à Gratuit (démo)':'Essayer Premium (démo)'}</button>
+      <button class="btn sec" data-act="deco">Me déconnecter</button></div></div></div>`;
+}
+
+function vApp(){
+  const t = [['tontines','Mes tontines','maison'],['invest','Investir','pousse'],['plus','Plus','etoile']];
+  let h;
+  if (S.onglet==='tontines') h = S.vue==='groupe' ? vGroupe() : S.vue==='creer' ? vCreer() : vListe();
+  else h = S.onglet==='invest' ? vInvest() : vPlus();
+  return h + `<nav class="tabs" aria-label="Navigation">${t.map(([k,l,i])=>`<button class="tab" data-tab="${k}" ${S.onglet===k?'aria-current="page"':''}>${ic(i)}${l}</button>`).join('')}</nav>`;
+}
+
+function vFeuille(){
+  const f = UI.feuille, g = G();
+  const mc = g && g.membres.find(x=>x.moi), c = mc && !mc.comm ? comm(g.membres.length) : 0;
+  if (f.t === 'op') return `<div class="voile" data-act="fermer"><div class="feuille" role="dialog" aria-modal="true" aria-label="Choisir l’opérateur">
+    <h2>Payer ${F(g.montant+c)}</h2><p style="margin-top:6px">${c?`${F(g.montant)} de cotisation + ${F(c)} de commission TDDK, payée une seule fois. `:''}Choisis ton opérateur. Tu confirmeras avec ton code secret dans son application (simulé ici).</p>
+    <div style="margin-top:10px">${['Wave','Orange Money','Free Money'].map(o=>`<button class="op" data-act="op" data-op="${o}"><i>${o[0]}</i><span>${o}</span></button>`).join('')}</div>
+    <button class="btn sec" style="margin-top:14px" data-act="fermer">Annuler</button></div></div>`;
+  const msg = `Cotisation payée : ${F(f.montant)} à ${f.nom}. Preuve ${f.num}, ${f.op}.`;
+  LECT = `Merci ${user().prenom}. Ton paiement de ${f.montant+f.commission} francs${f.commission?`, dont ${f.commission} de commission`:''} est enregistré.`;
+  return `<div class="voile" data-act="fermer"><div class="feuille recu" role="dialog" aria-modal="true"><div class="ok-gros">${ic('check')}</div><h2>Merci ${esc(user().prenom)}</h2><p style="margin-top:4px">Paiement enregistré.</p>
+    <dl><dt>Preuve</dt><dd>${f.num}</dd><dt>Opérateur</dt><dd>${esc(f.op)}</dd><dt>Cotisation</dt><dd>${F(f.montant)}</dd>${f.commission?`<dt>Commission</dt><dd>${F(f.commission)}</dd><dt>Total payé</dt><dd>${F(f.montant+f.commission)}</dd>`:''}<dt>Date</dt><dd>${esc(f.d)}</dd></dl>
+    <div class="pile"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">${ic('partage')}Partager sur WhatsApp</a>
+    <button class="btn sec" data-act="lire">${ic('voix')}Écouter</button><button class="btn sec" data-act="fermer">Fermer</button></div></div></div>`;
+}
+
+let _cle = '';
+function render(){
+  const e = S.ecran;
+  const h = e==='accueil' ? vAccueil() : e==='inscription' ? vInscription() : e==='connexion' ? vConnexion() : vApp();
+  $('app').innerHTML = h + (UI.feuille ? vFeuille() : '');
+  save();
+  /* animation d'entrée : seulement quand on change d'écran, jamais à chaque clic */
+  const cle = [S.ecran,S.onglet,S.vue,S.etape,S.sous&&S.sous.k,S.sous&&S.sous.id,S.gid].join('|');
+  if (cle !== _cle){ _cle = cle; const c = document.querySelector('.col'); if (c) c.classList.add('anim'); }
+  const cd = document.querySelector('input[data-code]');
+  if (cd){ const t = document.querySelector('input[data-f="tel"]'); (t && !t.value ? t : cd).focus({preventScroll:true}); }
+}
+
+/* ===== Logique ===== */
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function melanger(noms,graine){const r=mulberry(graine),a=[...noms];for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+
+function creerCompte(){
+  const T = S.tmp, tel = T.tel9;
+  S.comptes[tel] = {prenom:T.prenom.trim(),nom:(T.nom||'').trim(),tel,pin:T.pin1,quartier:T.quartier||'Médina',profil:T.profil||'particulier',premium:false};
+  S.donnees[tel] = {invits:[{id:'i1',de:'Fatou',nom:'Tontine des Parcelles',montant:5000,freq:'semaine',n:8,demo:true}],groupes:[],demandes:{}};
+  Object.assign(S,{tel,ecran:'app',onglet:'tontines',vue:'liste',tmp:{},saisie:'',erreur:'',etape:1});
+  toast('Compte créé. Une invitation t’attend.');
+}
+function payer(op){
+  const g = G(), me = g.membres.find(x=>x.moi), c = me.comm ? 0 : comm(g.membres.length); UI.feuille = null; me.st = 'cours'; render();
+  toast('Demande envoyée à ' + op + '. Confirme dans son application.');
+  setTimeout(()=>{
+    me.st = 'paye'; if (c) me.comm = c; const d = auj();
+    g.histo.unshift({t:g.tour,txt:me.nom+' a payé '+F(g.montant),op,d});
+    UI.feuille = {t:'recu',num:'#TK-'+Math.floor(100000+Math.random()*900000),op,montant:g.montant,commission:c,nom:g.nom,d}; render();
+  },2400);
+}
+const ACT = {
+  lire, fermer:()=>{UI.feuille=null},
+  vers:a=>{S.ecran=a.dataset.v;S.etape=1;S.saisie='';S.erreur='';S.tmp={}},
+  etape:a=>{S.etape=+a.dataset.v;S.saisie='';S.erreur='';delete S.tmp.pin1},
+  set:a=>{S.tmp[a.dataset.ch]=a.dataset.v;if(a.dataset.ch==='montant')delete S.tmp.montantLibre},
+  etape1:()=>{
+    const T=S.tmp,t=(T.tel||'').replace(/\D/g,'');
+    if(!(T.prenom||'').trim())return S.erreur='Écris ton prénom.';
+    if(t.length!==9)return S.erreur='Écris les 9 chiffres de ton numéro.';
+    if(S.comptes[t])return S.erreur='Ce numéro a déjà un compte. Appuie sur Retour, puis Me connecter.';
+    T.tel9=t;S.etape=2;S.saisie='';S.erreur='';
+  },
+  valider:()=>{
+    const T=S.tmp;
+    if(S.saisie.length!==4)return S.erreur='Tape les 4 chiffres.';
+    if(S.ecran==='connexion'){
+      const t=(T.tel||'').replace(/\D/g,''),c=S.comptes[t];
+      if(!c||c.pin!==S.saisie){S.saisie='';return S.erreur='Numéro ou code incorrect.'}
+      Object.assign(S,{tel:t,ecran:'app',onglet:'tontines',vue:'liste',tmp:{},saisie:'',erreur:''});return;
+    }
+    if(S.etape===2){S.etape=3;S.saisie='';S.erreur='';return}
+    if(!T.pin1){T.pin1=S.saisie;S.saisie='';S.erreur='';return}
+    if(T.pin1!==S.saisie){delete T.pin1;S.saisie='';return S.erreur='Les deux codes sont différents. Recommence.'}
+    creerCompte();
+  },
+  deco:()=>{Object.assign(S,{tel:null,ecran:'accueil',tmp:{},saisie:'',vue:'liste',gid:null,admin:false})},
+  ouvrir:a=>{S.gid=a.dataset.id;S.vue='groupe';S.admin=false;window.scrollTo(0,0)},
+  payerGroupe:a=>{S.gid=a.dataset.id;S.vue='groupe';S.onglet='tontines';S.admin=false;UI.feuille={t:'op'}},
+  liste:()=>{S.vue='liste'},
+  accepter:a=>{
+    const d=D(),i=d.invits.find(x=>x.id===a.dataset.i),u=user();if(!i)return;
+    const g=i.demo?demoGroupe(u.prenom):{id:'g'+Date.now(),type:'tontine',nom:i.nom,montant:i.montant,freq:i.freq,ordre:'tirage',tour:1,graine:null,envoye:false,rappel:'push',histo:[],
+      membres:[{nom:i.de,st:'attente',admin:true},{nom:u.prenom,st:'attente',moi:true}]};
+    d.groupes.push(g);d.invits=d.invits.filter(x=>x!==i);toast('Tu as rejoint '+i.nom+'.');
+  },
+  refuser:a=>{D().invits=D().invits.filter(x=>x.id!==a.dataset.i);toast('Invitation refusée.')},
+  creer:()=>{
+    const u=user();
+    if(!u.premium&&D().groupes.length>=LIM.tontines)return premium('Tu as déjà '+LIM.tontines+' tontines.');
+    S.creerType='tontine';S.tmp={};S.erreur='';S.vue='creer';S.onglet='tontines';
+  },
+  valcreer:()=>{
+    const T=S.tmp,u=user(),mt=parseInt(T.montantLibre||T.montant||'5000',10);
+    if(!(T.nom||'').trim())return S.erreur='Donne un nom au groupe.';
+    if(!(mt>=500))return S.erreur='Le montant doit être d’au moins 500 F.';
+    const g={id:'g'+Date.now(),type:'tontine',nom:T.nom.trim(),montant:mt,freq:T.freq||'semaine',ordre:T.ordre||'tirage',tour:1,graine:null,envoye:false,rappel:'push',histo:[],
+      membres:[{nom:u.prenom,st:'attente',admin:true,moi:true}]};
+    D().groupes.push(g);S.gid=g.id;S.vue='groupe';S.tmp={};S.erreur='';toast('Groupe créé. Invite tes membres en bas de la page.');
+  },
+  payer:()=>{UI.feuille={t:'op'}},
+  op:a=>payer(a.dataset.op),
+  vue:()=>{S.admin=!S.admin},
+  canal:a=>{const u=user();if(a.dataset.v==='sms'&&!u.premium)return premium('Rappels par SMS :');G().rappel=a.dataset.v},
+  rappel:()=>{
+    const g=G(),l=g.membres.filter(m=>m.st!=='paye'),c=g.rappel==='sms'?'SMS':'Notification';
+    g.histo.unshift({t:g.tour,txt:'Rappel envoyé à '+l.map(m=>m.nom).join(', '),op:c,d:auj()});toast(c+' envoyé à '+l.length+' personnes.');
+  },
+  inviter:()=>{
+    const g=G(),u=user(),t=(S.tmp.inv||'').replace(/\D/g,'');
+    if(t.length!==9)return toast('Écris les 9 chiffres du numéro.');
+    if(g.membres.length>=(u.premium?LIM.premium:LIM.gratuit))return premium('Limite de '+LIM.gratuit+' membres atteinte.');
+    g.membres.push({nom:'+221 '+t.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/,'$1 $2 $3 $4'),st:'attente'});
+    const autre=S.donnees[t];
+    if(autre)autre.invits.push({id:'i'+Date.now(),de:u.prenom,nom:g.nom,montant:g.montant,freq:g.freq,n:g.membres.length});
+    S.tmp.inv='';toast(autre?'Invitation envoyée dans son compte.':'Invitation enregistrée. Envoie-lui le lien par WhatsApp.');
+  },
+  tirer:()=>{
+    const g=G(),s=100000+Math.floor(Math.random()*900000),o=melanger(g.membres.map(m=>m.nom),s);
+    g.membres.sort((a,b)=>o.indexOf(a.nom)-o.indexOf(b.nom));g.graine=s;g.tour=1;
+    g.histo.unshift({t:1,txt:'Tirage au sort : '+o.join(', '),op:'Graine '+s,d:auj()});toast('Ordre tiré. Graine '+s+'.');
+  },
+  haut:a=>{const g=G(),i=+a.dataset.i;if(i>0)[g.membres[i],g.membres[i-1]]=[g.membres[i-1],g.membres[i]]},
+  bas:a=>{const g=G(),i=+a.dataset.i;if(i<g.membres.length-1)[g.membres[i],g.membres[i+1]]=[g.membres[i+1],g.membres[i]]},
+  envoyer:()=>{const g=G();g.envoye=true;toast(F(g.montant*g.membres.length)+' envoyés à '+g.membres[g.tour-1].nom+'.')},
+  recu:()=>{
+    const g=G(),b=g.membres[g.tour-1];g.histo.unshift({t:g.tour,txt:b.nom+' a reçu '+F(g.montant*g.membres.length),op:'',d:auj()});
+    g.tour=g.tour%g.membres.length+1;g.membres.forEach(m=>{m.st='attente';m.retard=0});g.envoye=false;toast('Nouveau tour : '+g.membres[g.tour-1].nom+' reçoit la prochaine cagnotte.');
+  },
+  exporter:()=>{
+    if(!user().premium)return premium('Export de l’historique :');
+    const g=G(),csv='tour;texte;operateur;date\n'+g.histo.map(h=>[h.t,h.txt,h.op,h.d].join(';')).join('\n'),a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));a.download='historique.csv';a.click();
+  },
+  prem:()=>{const u=user();u.premium=!u.premium;toast(u.premium?'Premium activé (démo).':'Retour à Gratuit.')}
+};
+
+document.addEventListener('click', e => {
+  const tab = e.target.closest('[data-tab]');
+  if (tab){ S.onglet = tab.dataset.tab; if (S.onglet==='tontines') S.vue='liste'; render(); window.scrollTo(0,0); return; }
+  const a = e.target.closest('[data-act]'); if (!a) return;
+  if (a.classList.contains('voile') && e.target !== a) return;
+  const f = ACT[a.dataset.act]; if (!f) return;
+  const nav = ['vers','ouvrir','liste','creer','valcreer','accepter','deco','etape','payerGroupe'].includes(a.dataset.act);
+  if (a.dataset.act !== 'lire') S.erreur = '';
+  const r = f(a); if (typeof r === 'string') S.erreur = r;
+  render(); if (nav) window.scrollTo(0,0);
+});
+document.addEventListener('input', e => {
+  const d = e.target.dataset || {}; if (d.f) S.tmp[d.f] = e.target.value;
+  if (d.code !== undefined){ S.saisie = e.target.value.replace(/\D/g,'').slice(0,4); e.target.value = S.saisie; S.erreur = ''; }
+});
+document.addEventListener('keydown', e => { if (e.key==='Enter' && e.target.dataset && e.target.dataset.code!==undefined){ const b = document.querySelector('[data-act="valider"]'); if (b) b.click(); } });
+render();
+</script>
+<script>
+/* ===== Modules : profil et score, épargne par objectif, assistance Premium =====
+   Ce bloc s'ajoute au code principal sans le modifier : il enrichit l'écran « Plus ». */
+(() => {
+Object.assign(ICONES, {
+  bouclier:'<path d="M12 3l8 3v6c0 4.5-3.4 7.8-8 9-4.6-1.2-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
+  cible:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".8"/>',
+  casque:'<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>',
+  chevron:'<path d="M9 5l7 7-7 7"/>'
+});
+
+/* ----- Données propres à chaque compte ----- */
+const X = () => { const d = D(); if (!d.ext) d.ext = {objectifs:[],contestations:{},tickets:[],mises:[],partage:false}; return d.ext; };
+
+/* ----- Dates ----- */
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const parse = s => { const [y,m,j] = s.split('-').map(Number); return new Date(y,m-1,j); };
+const jour = s => parse(s).toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+const jourAn = s => parse(s).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+const aujISO = () => ymd(new Date());
+const diffJ = (a,b) => Math.round((parse(b)-parse(a))/86400000);
+const CYC = {jour:1,semaine:7,quinzaine:15,mois:30};
+const duree = j => j<=0 ? 'moins d’un jour' : j===1 ? '1 jour' : j<14 ? j+' jours' : j<60 ? Math.round(j/7)+' semaines' : Math.round(j/30)+' mois';
+const pl = (n,s,p) => n+' '+(n>1?p:s);
+const ret = (k,o) => `data-act="sous" data-k="${k}" data-o="${o}"`;
+const lien = (k,o,ico,titre,sous,id,fin) => `<button class="row lien" data-act="sous" data-k="${k}" data-o="${o}"${id?` data-id="${id}"`:''}><div class="n">${ic(ico,'g')}</div><div class="c">${titre}<small>${sous}</small></div><div class="d">${fin||''}${ic('chevron')}</div></button>`;
+const pour = (c,m) => Math.max(0,Math.min(100,Math.round(100*c/m)));
+
+/* =====================================================================
+   PROFIL ET SCORE DE CONFIANCE
+   ===================================================================== */
+function indicateurs(){
+  const gs = D().groupes || []; let P=0, E=0, ok=0, tot=0, debut=Infinity;
+  gs.forEach(g => {
+    const me = g.membres.find(x=>x.moi); if (!me) return; tot++;
+    P += g.histo.filter(h => String(h.txt).startsWith(me.nom+' a payé')).length;
+    if (me.st==='echoue') E++;
+    if (!(me.retard>0) && me.st!=='echoue') ok++;
+    const t = parseInt(String(g.id).slice(1),10); if (isFinite(t)) debut = Math.min(debut,t);
+  });
+  const jours = isFinite(debut) ? Math.max(0,Math.floor((Date.now()-debut)/86400000)) : 0;
+  const C = [
+    {id:'reg',nom:'Régularité des cotisations',max:40,pts:(P+E)?Math.round(40*P/(P+E)):null,
+     val:(P+E)?`${pl(P,'paiement enregistré','paiements enregistrés')}, ${pl(E,'échec','échecs')}`:'Aucun paiement enregistré pour l’instant',
+     regle:'paiements enregistrés ÷ (paiements enregistrés + paiements échoués), multiplié par 40.'},
+    {id:'tps',nom:'Paiements à temps',max:30,pts:tot?Math.round(30*ok/tot):null,
+     val:tot?`${ok} ${tot>1?'groupes':'groupe'} sur ${tot} sans retard`:'Tu n’es dans aucun groupe',
+     regle:'groupes où tu n’as aucun retard en ce moment ÷ tes groupes, multiplié par 30. Un retard régularisé n’est plus compté.'},
+    {id:'anc',nom:'Ancienneté',max:15,pts:tot?Math.min(15,Math.round(15*jours/180)):null,
+     val:tot?`Dans ton premier groupe depuis ${duree(jours)}`:'Tu n’es dans aucun groupe',
+     regle:'temps écoulé depuis ton arrivée dans ton premier groupe. 6 mois donnent les 15 points.'},
+    {id:'part',nom:'Participation aux groupes',max:15,pts:tot?Math.min(15,5*tot):null,
+     val:tot?pl(tot,'groupe','groupes'):'Tu n’es dans aucun groupe',
+     regle:'5 points par groupe, jusqu’à 3 groupes.'}
+  ];
+  const dispo = C.filter(c=>c.pts!==null), maxd = dispo.reduce((s,c)=>s+c.max,0), got = dispo.reduce((s,c)=>s+c.pts,0);
+  return {C, score:maxd?Math.round(100*got/maxd):null, prov:(P+E)<3, P, E, tot, got, maxd};
+}
+const niveau = s => s===null ? 'Pas encore de score' : s>=80 ? 'Très régulier' : s>=60 ? 'Régulier' : 'En construction';
+
+function vProfil(){
+  const u = user(), x = X(), I = indicateurs(), nC = Object.keys(x.contestations).length;
+  LECT = I.score===null
+    ? 'Ton score de confiance n’existe pas encore. Rejoins un groupe et fais un premier paiement. Chaque critère est expliqué et tu peux le contester.'
+    : `Ton score de confiance est de ${I.score} sur 100. ${niveau(I.score)}. ${I.prov?'Il est provisoire, car moins de 3 paiements sont enregistrés. ':''}Chaque critère est expliqué et tu peux le contester. Le score ne décide jamais seul d’exclure quelqu’un.`;
+  const groupes = (D().groupes||[]).map(g => { const me = g.membres.find(m=>m.moi), [lib,ico] = LIB[me.st];
+    return `<div class="row"><div class="n">${ic('pieces','g')}</div><div class="c">${esc(g.nom)}<small>tour ${g.tour} sur ${g.membres.length}</small></div><div class="d"><span class="st ${me.st}">${ic(ico)}${lib}</span></div></div>`; }).join('');
+  const crit = I.C.map(c => { const ct = x.contestations[c.id];
+    return `<section class="crit"><div class="pts"><h2>${c.nom}</h2><b>${c.pts===null?'—':c.pts+'/'+c.max}</b></div>
+      <div class="jauge" role="img" aria-label="${c.pts===null?'Pas assez de données':c.pts+' points sur '+c.max}"><i style="width:${c.pts===null?0:pour(c.pts,c.max)}%"></i></div>
+      <p style="margin-top:10px"><b>${esc(c.val)}</b></p><p class="regle">Calcul : ${c.regle}</p>
+      ${ct?`<p style="margin-top:12px"><span class="st cours">${ic('clock')}Contesté, en examen</span></p><p class="regle">Ta demande du ${esc(ct.d)} : « ${esc(ct.txt)} »</p>
+        <div class="pile"><button class="btn sec petit" data-act="retirer" data-c="${c.id}">Retirer ma contestation</button></div>`
+      :`<div class="pile"><button class="btn sec petit" data-act="ctopen" data-c="${c.id}">Contester ce critère</button></div>`}</section>`; }).join('');
+  return `<div class="col">${haut('Profil et score','Transparent et contestable',ret('','plus'))}
+    <div class="row" style="margin-top:8px"><div class="n">${ic('user','g')}</div><div class="c">${esc(u.prenom)} ${esc(u.nom)}<small>+221 ${esc(u.tel)}, ${esc(u.quartier)}, ${u.profil==='investisseur'?'investisseur':'particulier'}</small></div></div>
+    <section class="score" aria-live="polite">
+      <div>Ton score de confiance</div>
+      <div class="gros">${I.score===null?'—':I.score}<small>${I.score===null?'':' / 100'}</small></div>
+      <div class="niv">${ic(I.score===null?'dash':'check')}${niveau(I.score)}${I.score!==null&&I.prov?', provisoire':''}</div>
+      <div class="jauge" aria-hidden="true"><i style="width:${I.score||0}%"></i></div>
+      <p>${I.score===null?'Rejoins un groupe et fais un premier paiement : le score se construit avec tes actions.'
+        :`Calculé sur ${I.maxd} points possibles${I.maxd<100?' (les critères sans donnée ne comptent pas)':''}.${I.prov?' Moins de 3 paiements enregistrés : le score reste provisoire.':''}${nC?` ${pl(nC,'critère contesté','critères contestés')}, en examen.`:''}`}</p>
+    </section>
+    <div class="avert"><p><b>Ce score ne décide de rien tout seul.</b> Il ne peut jamais exclure quelqu’un d’un groupe : seul le groupe décide, après avoir entendu la personne.</p></div>
+    <div class="titre"><h2>Les 4 critères</h2></div>${crit}
+    <div class="titre"><h2>Mes groupes</h2></div>${groupes || '<p class="m">Tu n’es dans aucun groupe pour l’instant.</p>'}
+    <div class="titre"><h2>Partage</h2></div>
+    <div class="m"><p>Par défaut, personne d’autre que toi ne voit ton score. Tu peux choisir de le partager avec tes groupes, et arrêter quand tu veux.</p>
+      <div class="pile"><button class="bascule" data-act="partage" aria-pressed="${!!x.partage}" style="justify-self:start">${u.premium?'':ic('cadenas')}Partager mon score avec mes groupes${u.premium?'':' <span class="prem">Premium</span>'}</button></div>
+      <p class="fin" style="margin-top:10px">Démonstration : les critères sont calculés sur les données de cet appareil.</p></div></div>`;
+}
+
+/* =====================================================================
+   ÉPARGNE INTELLIGENTE PAR OBJECTIF
+   ===================================================================== */
+const TYPES_OBJ = [['equipement','Équipement'],['etudes','Études'],['voyage','Voyage'],['ceremonie','Cérémonie'],['projet','Projet personnel']];
+const QUAND = {jour:['Le jour même',0],veille:['La veille',1],avance:['3 jours avant',3]};
+function planifier(reste, debut, ech, freq){
+  const d0 = parse(debut), fin = parse(ech); let dates = [];
+  for (let i=1;i<=600;i++){ const x = new Date(d0); if (freq==='mois') x.setMonth(x.getMonth()+i); else x.setDate(x.getDate()+i*(freq==='semaine'?7:15)); if (x>fin) break; dates.push(x); }
+  if (!dates.length) dates = [fin];
+  const base = Math.ceil(reste/dates.length/500)*500; let r = reste; const out = [];
+  for (const x of dates){ const m = Math.min(base,r); if (m<=0) break; out.push({d:ymd(x),m,fait:false}); r -= m; }
+  return out;
+}
+const recoFreq = j => j<=60 ? 'semaine' : j<=240 ? 'quinzaine' : 'mois';
+const recoQuand = m => m>=50000 ? 'avance' : 'veille';
+function etat(o){
+  const faits = o.plan.filter(p=>p.fait), ep = faits.reduce((s,p)=>s+p.m,0), t = aujISO();
+  const prochain = o.plan.find(p=>!p.fait), retards = o.plan.filter(p=>!p.fait && p.d<t);
+  return {ep, prochain, retards, fini:ep>=o.cible, pct:pour(ep,o.cible)};
+}
+function lireForm(){
+  const T = S.tmp, nom = (T.ep_nom||'').trim(), cible = parseInt(T.ep_cible,10), date = T.ep_date;
+  if (!nom) return {err:'Donne un nom à ton objectif.'};
+  if (!(cible>=5000)) return {err:'Le montant doit être d’au moins 5 000 F.'};
+  if (!date) return {err:'Choisis une date d’échéance.'};
+  const j = diffJ(aujISO(),date);
+  if (!(j>=7)) return {err:'L’échéance doit être dans au moins 7 jours.'};
+  if (j>1825) return {err:'L’échéance ne peut pas dépasser 5 ans.'};
+  return {nom,cible,date,j,type:T.ep_type||'projet'};
+}
+const pBtn = (act,attrs,label,on) => `<button type="button" data-act="${act}" ${attrs} aria-pressed="${on}">${label}</button>`;
+
+function vEpargne(){
+  const L = X().objectifs;
+  LECT = L.length ? `Épargne par objectif. Tu as ${L.length} objectifs.` : 'Épargne par objectif. Crée un objectif, avec un montant et une date. L’application calcule combien mettre de côté et quand.';
+  const rows = L.map(o => { const e = etat(o);
+    const chip = e.fini ? `<span class="st paye">${ic('check')}Atteint</span>` : e.retards.length ? `<span class="st cours">${ic('clock')}À rattraper</span>` : `<span class="st attente">${ic('dash')}${jour(e.prochain.d)}</span>`;
+    return lien('objectif','plus','cible',esc(o.nom),`${F(e.ep)} sur ${F(o.cible)}, échéance ${jour(o.echeance)}`,o.id,chip); }).join('');
+  return `<div class="col">${haut('Épargne par objectif','Équipement, études, voyage…',ret('','plus'))}
+    <div class="titre"><h2>Mes objectifs</h2></div>
+    ${rows || '<p class="m">Aucun objectif pour l’instant. Crée le premier : tu obtiens un calendrier de versements et des rappels.</p>'}
+    <div class="m"><div class="pile" style="margin-top:22px"><button class="btn" data-act="sous" data-k="nouvelObjectif" data-o="plus">${ic('plus')}Nouvel objectif</button></div></div></div>`;
+}
+
+function vNouvelObjectif(){
+  const T = S.tmp, p = lireForm(), u = user();
+  LECT = 'Nouvel objectif d’épargne. Choisis le type, donne un nom, le montant à atteindre et la date. Puis appuie sur Voir mon calendrier.';
+  let prev = '';
+  if (T.ep_ok && !p.err){
+    const reco = recoFreq(p.j), freq = T.ep_freq || reco, plan = planifier(p.cible,aujISO(),p.date,freq);
+    const opts = ['semaine','quinzaine','mois'].map(k => { const pp = planifier(p.cible,aujISO(),p.date,k); return [k,`${F(pp[0].m)} ${FREQ[k]}${k===reco?' (conseillé)':''}`]; });
+    const dq = T.ep_quand || recoQuand(plan[0].m), canal = T.ep_canal || 'push';
+    const ligne = x => `<div class="row"><div class="n">${plan.indexOf(x)+1}</div><div class="c">${jour(x.d)}</div><div class="d"><b>${F(x.m)}</b></div></div>`;
+    const apercu = plan.length>5 ? [...plan.slice(0,3).map(ligne), `<p class="m fin" style="margin:8px 0">… ${plan.length-4} autres versements …</p>`, ligne(plan[plan.length-1])].join('') : plan.map(ligne).join('');
+    prev = `<div class="titre"><h2>Ton calendrier</h2></div>
+      <div class="m"><p>Échéance dans ${duree(p.j)}. Choisis le rythme : le montant s’adapte.</p>
+      <div class="choix">${opts.map(([k,l])=>pBtn('set','data-ch="ep_freq" data-v="'+k+'"',esc(l),freq===k)).join('')}</div></div>
+      <div style="margin-top:14px">${apercu}</div>
+      <div class="m"><div class="champ"><span>Me rappeler</span><div class="choix">${Object.entries(QUAND).map(([k,[l]])=>pBtn('set','data-ch="ep_quand" data-v="'+k+'"',l+(k===recoQuand(plan[0].m)?' (conseillé)':''),dq===k)).join('')}</div></div>
+      <div class="champ"><span>Par</span><div class="choix">${pBtn('ep_c','data-v="push"','Notification',canal==='push')}${pBtn('ep_c','data-v="sms"',(u.premium?'':ic('cadenas'))+'SMS'+(u.premium?'':' <span class="prem">Premium</span>'),canal==='sms')}</div></div>
+      <div class="pile"><button class="btn" data-act="ep_creer">${ic('check')}Créer mon objectif</button></div></div>`;
+  }
+  return `<div class="col">${haut('Nouvel objectif','',ret('epargne','plus'))}<div class="m">
+    <div class="champ"><span>Type d’objectif</span>${choix('ep_type',TYPES_OBJ,T.ep_type||'projet')}</div>
+    ${champ('Nom de l’objectif','ep_nom','maxlength="30"')}
+    <label class="champ"><span>Montant à atteindre, en francs</span><input type="number" data-f="ep_cible" inputmode="numeric" min="5000" step="500" value="${esc(T.ep_cible||'')}"></label>
+    <label class="champ"><span>Date d’échéance</span><input type="date" data-f="ep_date" min="${ymd(new Date(Date.now()+7*86400000))}" value="${esc(T.ep_date||'')}"></label>
+    ${err()}<div class="pile"><button class="btn ${T.ep_ok&&!p.err?'sec':''}" data-act="ep_calc">${ic('clock')}Voir mon calendrier</button></div></div>${prev}</div>`;
+}
+
+function vObjectif(s){
+  const o = X().objectifs.find(x=>x.id===s.id); if (!o){ S.sous = null; return null; }
+  const e = etat(o), nx = e.prochain, q = QUAND[o.rappel.quand], dRapp = nx ? ymd(new Date(parse(nx.d).getTime()-q[1]*86400000)) : null;
+  LECT = `${o.nom}. Tu as mis de côté ${e.ep} francs sur ${o.cible}. ` + (e.fini ? 'Objectif atteint.' : nx ? `Prochain versement : ${nx.m} francs le ${jour(nx.d)}.` : '');
+  const plan = o.plan.map((p,i) => { const late = !p.fait && p.d<aujISO();
+    return `<div class="row"><div class="n">${i+1}</div><div class="c">${jour(p.d)}${p.fait?`<small>Versé</small>`:''}</div><div class="d"><b>${F(p.m)}</b><span class="st ${p.fait?'paye':late?'echoue':'attente'}">${ic(p.fait?'check':late?'clock':'dash')}${p.fait?'Fait':late?'En retard':'À faire'}</span></div></div>`; }).join('');
+  const rg = (act,v,l,on) => pBtn(act,`data-id="${o.id}" data-v="${v}"`,l,on);
+  return `<div class="col">${haut(o.nom,TYPES_OBJ.find(t=>t[0]===o.type)[1],ret('epargne','plus'))}
+    <section class="bl" style="margin-top:16px"><div class="gros-m">${F(e.ep)}</div><p>sur ${F(o.cible)}, échéance le ${jourAn(o.echeance)} (dans ${duree(Math.max(0,diffJ(aujISO(),o.echeance)))})</p>
+      <div class="jauge" role="img" aria-label="${e.pct} pour cent"><i style="width:${e.pct}%"></i></div></section>
+    ${e.fini?`<div class="avert"><p><b>Objectif atteint.</b> Bravo, tu as mis de côté la totalité du montant.</p></div>`
+    : `<div class="m"><div class="pile">${nx?`<button class="btn ocre" data-act="ep_verse" data-id="${o.id}">${ic('check')}J’ai mis ${F(nx.m)} de côté</button>`:''}</div>
+      <p class="fin" style="margin-top:8px">Prochain versement : <b>${F(nx.m)}</b>, ${jour(nx.d)}.</p></div>`}
+    ${e.retards.length&&!e.fini?`<div class="avert"><p><b>${pl(e.retards.length,'versement en retard','versements en retard')}.</b> Pas de souci : recalcule le calendrier pour répartir le reste jusqu’à l’échéance.</p>
+      <div class="pile"><button class="btn sec petit" data-act="ep_recalc" data-id="${o.id}">${ic('tour')}Recalculer le calendrier</button></div></div>`:''}
+    <div class="titre"><h2>Calendrier</h2></div>${plan}
+    <div class="titre"><h2>Rappels</h2></div>
+    <div class="m">${nx&&!e.fini?`<p>Prochain rappel : <b>${jour(dRapp)}</b>, ${q[0].toLowerCase()}, par ${o.rappel.canal==='sms'?'SMS':'notification'}.</p>`:''}
+      <div class="champ" style="margin-top:12px"><span>Me rappeler</span><div class="choix">${Object.entries(QUAND).map(([k,[l]])=>rg('ep_quand2',k,l,o.rappel.quand===k)).join('')}</div></div>
+      <div class="champ"><span>Par</span><div class="choix">${rg('ep_canal2','push','Notification',o.rappel.canal==='push')}${rg('ep_canal2','sms',(user().premium?'':ic('cadenas'))+'SMS'+(user().premium?'':' <span class="prem">Premium</span>'),o.rappel.canal==='sms')}</div></div>
+      <div class="pile"><button class="btn sec" data-act="ep_test" data-id="${o.id}">${ic('clock')}Tester un rappel</button>
+      <button class="btn sec" data-act="ep_suppr" data-id="${o.id}">${ic('eff')}Supprimer cet objectif</button></div>
+      <p class="fin" style="margin-top:10px">Démonstration : les rappels sont simulés et aucun argent n’est déplacé. L’application enregistre ce que tu mets de côté.</p></div></div>`;
+}
+
+/* =====================================================================
+   ASSISTANCE PREMIUM
+   ===================================================================== */
+const KIND = {creation:'Aide à la création',support:'Support prioritaire',mediation:'Désaccord entre membres'};
+function vAssist(){
+  const u = user(), x = X(), T = S.tmp;
+  if (!u.premium){
+    LECT = 'L’assistance est une fonction Premium : support prioritaire, aide à la création d’une tontine, et accompagnement en cas de désaccord entre membres.';
+    return `<div class="col">${haut('Assistance Premium','Une vraie personne pour t’aider',ret('','plus'))}
+      <div class="titre"><h2>Ce que tu obtiens</h2></div>
+      <div class="row"><div class="n">${ic('casque','g')}</div><div class="c">Support prioritaire<small>Tes questions passent avant les demandes gratuites</small></div></div>
+      <div class="row"><div class="n">${ic('pieces','g')}</div><div class="c">Aide à créer une tontine<small>Montant, rythme et durée calculés avec un conseiller</small></div></div>
+      <div class="row"><div class="n">${ic('user','g')}</div><div class="c">Accompagnement en cas de désaccord<small>Un conseiller aide le groupe à trouver un accord</small></div></div>
+      <div class="m"><div class="pile" style="margin-top:22px"><button class="btn ocre" data-act="prem">${ic('etoile')}Essayer Premium (démo)</button></div></div></div>`;
+  }
+  const n = +(T.as_n||8), m = +(T.as_m||5000), f = T.as_f||'semaine', pot = n*m, groupes = D().groupes || [];
+  const gid = T.as_g || (groupes[0] && groupes[0].id);
+  LECT = 'Assistance Premium. Tu as trois services : de l’aide pour créer une tontine, le support prioritaire, et un accompagnement en cas de désaccord entre membres.';
+  const tk = x.tickets.map(t => `<div class="row"><div class="n">${ic(t.kind==='creation'?'pieces':t.kind==='support'?'casque':'user','g')}</div><div class="c">${KIND[t.kind]}<small>${esc(t.txt)}</small></div><div class="d"><span class="st cours">${ic('clock')}Reçue</span></div></div>`).join('');
+  return `<div class="col">${haut('Assistance Premium','Priorité Premium',ret('','plus'))}
+    <div class="titre"><h2>Créer une tontine avec de l’aide</h2></div><div class="m">
+      <div class="champ" style="margin-top:0"><span>Nombre de personnes</span>${choix('as_n',[5,8,10,12,20].map(v=>[v,v]),n)}</div>
+      <div class="champ"><span>Cotisation par personne</span>${choix('as_m',[2000,5000,10000,25000].map(v=>[v,F(v)]),m)}</div>
+      <div class="champ"><span>Fréquence</span>${choix('as_f',Object.keys(FREQ).map(k=>[k,FREQ[k]]),f)}</div>
+      <div class="bl" style="margin:16px 0 0"><p>${n} personnes cotisent ${F(m)} ${FREQ[f]}.</p><p>À chaque tour, la cagnotte est de <b>${F(pot)}</b> et une personne la reçoit. Après ${n} tours, tout le monde a reçu une fois : environ ${duree(n*CYC[f])}.</p>
+        <p class="fin">Chacun verse ${F(n*m)} de cotisations en tout et reçoit ${F(pot)} une fois. Une tontine ne rapporte pas d’intérêts.</p>
+        <p class="fin">Commission TDDK : ${F(comm(n))} par membre, payée une seule fois avec la première cotisation. Elle n’entre pas dans la cagnotte.</p></div>
+      <div class="pile"><button class="btn" data-act="as_creer">${ic('plus')}Préparer ma tontine avec ces réglages</button>
+      <button class="btn sec" data-act="as_ticket" data-k="creation">${ic('casque')}Demander l’aide d’un conseiller</button></div></div>
+    <div class="titre"><h2>Difficulté d’utilisation</h2></div><div class="m">
+      <div class="champ" style="margin-top:0"><span>Sujet</span>${choix('as_s',['Paiement','Code secret','Invitation','Autre'].map(v=>[v,v]),T.as_s||'Paiement')}</div>
+      <label class="champ"><span>Décris ton problème</span><textarea data-f="as_msg" maxlength="400">${esc(T.as_msg||'')}</textarea></label>
+      <div class="pile"><button class="btn" data-act="as_ticket" data-k="support">${ic('casque')}Contacter le support prioritaire</button></div></div>
+    <div class="titre"><h2>Désaccord entre membres</h2></div><div class="m">
+      ${groupes.length?`<div class="champ" style="margin-top:0"><span>Groupe concerné</span>${choix('as_g',groupes.map(g=>[g.id,g.nom]),gid)}</div>
+      <div class="champ"><span>Sujet du désaccord</span>${choix('as_d',['Retard de paiement','Ordre des tours','Montant','Autre'].map(v=>[v,v]),T.as_d||'Retard de paiement')}</div>
+      <label class="champ"><span>Explique la situation</span><textarea data-f="as_msg2" maxlength="400">${esc(T.as_msg2||'')}</textarea></label>
+      <div class="avert" style="margin:14px 0 0"><p>Un conseiller contacte l’administrateur et les membres concernés. Il aide à trouver un accord, il ne tranche pas à la place du groupe.</p></div>
+      <div class="pile"><button class="btn" data-act="as_ticket" data-k="mediation">${ic('user')}Demander un accompagnement</button></div>`
+      :'<p>Tu n’es dans aucun groupe pour l’instant.</p>'}</div>
+    <div class="titre"><h2>Mes demandes</h2></div>${tk || '<p class="m">Aucune demande pour l’instant.</p>'}
+    <div class="m"><p class="fin" style="margin-top:10px">Démonstration : les demandes sont enregistrées sur cet appareil et ne sont envoyées à personne.</p></div></div>`;
+}
+
+/* ===== Branchement : écrans et actions ===== */
+const SOUS = {profil:vProfil, epargne:vEpargne, nouvelObjectif:vNouvelObjectif, objectif:vObjectif, assist:vAssist};
+
+const entreesPlus = () => { const u = user(), nO = X().objectifs.length;
+  return `<div class="titre"><h2>Mon espace</h2></div>
+    ${lien('profil','plus','bouclier','Profil et score de confiance','Critères visibles, calcul expliqué, contestable')}
+    ${lien('epargne','plus','cible','Épargne par objectif',nO?pl(nO,'objectif','objectifs'):'Calendrier et rappels adaptés')}
+    ${lien('assist','plus','casque','Assistance Premium','Support prioritaire, aide, accompagnement',null,u.premium?'':'<span class="prem">Premium</span>')}`; };
+
+const _vApp = vApp;
+vApp = function(){
+  const base = _vApp(), i = base.indexOf('<nav class="tabs"'); if (i<0) return base;
+  const tabs = base.slice(i), s = S.sous;
+  if (s && s.o===S.onglet && SOUS[s.k]){ const h = SOUS[s.k](s); if (h) return h + tabs; }
+  let head = base.slice(0,i);
+  if (S.onglet==='plus'){
+    const m = head.search(/<div class="titre"><h2>(Premium actif|Gratuit, avec Premium en option)/);
+    if (m>=0) head = head.slice(0,m) + entreesPlus() + head.slice(m);
+  }
+  return head + tabs;
+};
+
+const _vFeuille = vFeuille;
+vFeuille = function(){
+  const f = UI.feuille;
+  if (f && f.t==='contest'){
+    const c = indicateurs().C.find(x=>x.id===f.c);
+    return `<div class="voile" data-act="fermer"><div class="feuille" role="dialog" aria-modal="true" aria-label="Contester un critère">
+      <h2>Contester : ${c.nom}</h2><p style="margin-top:6px">Explique pourquoi ce critère ne te semble pas juste. Il sera marqué « en examen » et relu par une personne.</p>
+      <label class="champ"><span>Ton explication</span><textarea data-f="ct_txt" maxlength="400">${esc(S.tmp.ct_txt||'')}</textarea></label>
+      <div class="pile"><button class="btn" data-act="contester" data-c="${f.c}">${ic('envoi')}Envoyer ma contestation</button><button class="btn sec" data-act="fermer">Annuler</button></div></div></div>`;
+  }
+  return _vFeuille();
+};
+
+const _premium = premium;
+premium = function(msg){ S.sous = null; return _premium(msg); };
+
+/* un clic sur un onglet ferme l'écran ouvert dans l'onglet */
+document.addEventListener('click', e => { if (e.target.closest('[data-tab]')) S.sous = null; }, true);
+
+Object.assign(ACT, {
+  sous:a=>{ const k = a.dataset.k||''; if (!k){ S.sous = null; } else { S.sous = {o:a.dataset.o||S.onglet,k,id:a.dataset.id||null}; S.onglet = S.sous.o;
+    if (k==='nouvelObjectif') S.tmp = {}; }
+    S.erreur = ''; window.scrollTo(0,0); },
+  /* score */
+  ctopen:a=>{ S.tmp.ct_txt = ''; UI.feuille = {t:'contest',c:a.dataset.c}; },
+  contester:a=>{ const t = (S.tmp.ct_txt||'').trim(); if (t.length<5) return toast('Écris au moins quelques mots.');
+    X().contestations[a.dataset.c] = {txt:t,d:auj(),statut:'En examen'}; UI.feuille = null; S.tmp.ct_txt = ''; toast('Contestation enregistrée. Le critère est signalé « en examen ».'); },
+  retirer:a=>{ delete X().contestations[a.dataset.c]; toast('Contestation retirée.'); },
+  partage:()=>{ if (!user().premium) return premium('Partage du score :'); X().partage = !X().partage; toast(X().partage?'Score partagé avec tes groupes (démo).':'Partage arrêté.'); },
+  /* épargne */
+  ep_calc:()=>{ const p = lireForm(); if (p.err){ S.tmp.ep_ok = false; return p.err; } S.tmp.ep_ok = true; S.tmp.ep_freq = recoFreq(p.j); delete S.tmp.ep_quand; },
+  ep_c:a=>{ if (a.dataset.v==='sms' && !user().premium) return premium('Rappels par SMS :'); S.tmp.ep_canal = a.dataset.v; },
+  ep_creer:()=>{ const p = lireForm(); if (p.err) return p.err;
+    const freq = S.tmp.ep_freq || recoFreq(p.j), plan = planifier(p.cible,aujISO(),p.date,freq);
+    const o = {id:'o'+Date.now(),type:p.type,nom:p.nom,cible:p.cible,debut:aujISO(),echeance:p.date,freq,plan,rappel:{canal:S.tmp.ep_canal||'push',quand:S.tmp.ep_quand||recoQuand(plan[0].m)}};
+    X().objectifs.push(o); S.sous = {o:'plus',k:'objectif',id:o.id}; S.tmp = {}; toast('Objectif créé. Premier versement : '+F(plan[0].m)+', '+jour(plan[0].d)+'.'); window.scrollTo(0,0); },
+  ep_verse:a=>{ const o = X().objectifs.find(x=>x.id===a.dataset.id), p = o.plan.find(x=>!x.fait); if (!p) return; p.fait = true; p.date = aujISO();
+    toast(etat(o).fini ? 'Objectif atteint, bravo !' : 'Versement enregistré : '+F(p.m)+'.'); },
+  ep_recalc:a=>{ const o = X().objectifs.find(x=>x.id===a.dataset.id), e = etat(o);
+    if (diffJ(aujISO(),o.echeance)<1) return toast('L’échéance est passée. Crée un nouvel objectif avec une nouvelle date.');
+    o.plan = o.plan.filter(p=>p.fait).concat(planifier(o.cible-e.ep,aujISO(),o.echeance,o.freq)); toast('Calendrier recalculé jusqu’à l’échéance.'); },
+  ep_quand2:a=>{ X().objectifs.find(x=>x.id===a.dataset.id).rappel.quand = a.dataset.v; },
+  ep_canal2:a=>{ if (a.dataset.v==='sms' && !user().premium) return premium('Rappels par SMS :'); X().objectifs.find(x=>x.id===a.dataset.id).rappel.canal = a.dataset.v; },
+  ep_test:a=>{ const o = X().objectifs.find(x=>x.id===a.dataset.id), nx = etat(o).prochain; toast('Rappel (démo) : mets '+(nx?F(nx.m):'ton épargne')+' de côté pour « '+o.nom+' ».'); },
+  ep_suppr:a=>{ if (!confirm('Supprimer cet objectif et son calendrier ?')) return; const L = X().objectifs; L.splice(L.findIndex(x=>x.id===a.dataset.id),1); S.sous = {o:'plus',k:'epargne'}; toast('Objectif supprimé.'); },
+  /* assistance */
+  as_creer:()=>{ const T = S.tmp; S.creerType = 'tontine'; S.tmp = {montant:String(T.as_m||5000),freq:T.as_f||'semaine',ordre:'tirage'}; S.erreur = ''; S.vue = 'creer'; S.onglet = 'tontines'; S.sous = null; window.scrollTo(0,0);
+    toast('Réglages préparés. Donne un nom au groupe, puis invite tes membres.'); },
+  as_ticket:a=>{ const T = S.tmp, k = a.dataset.k, g = (D().groupes||[]).find(x=>x.id===(T.as_g||(D().groupes[0]&&D().groupes[0].id)));
+    let txt;
+    if (k==='creation') txt = (T.as_n||8)+' personnes, '+F(+(T.as_m||5000))+' '+FREQ[T.as_f||'semaine'];
+    else if (k==='support'){ if ((T.as_msg||'').trim().length<5) return toast('Décris ton problème en quelques mots.'); txt = (T.as_s||'Paiement')+' : '+T.as_msg.trim(); }
+    else { if (!g) return toast('Choisis un groupe.'); if ((T.as_msg2||'').trim().length<5) return toast('Explique la situation en quelques mots.'); txt = g.nom+', '+(T.as_d||'Retard de paiement')+' : '+T.as_msg2.trim(); }
+    X().tickets.unshift({id:'t'+Date.now(),kind:k,txt,d:auj(),statut:'Reçue',prio:true});
+    if (k==='support') T.as_msg = ''; if (k==='mediation') T.as_msg2 = '';
+    toast('Demande envoyée en priorité (démo).'); }
+});
+
+render();
+})();
+</script>
+<script src="verification.js"></script>
+</body>
+</html>
