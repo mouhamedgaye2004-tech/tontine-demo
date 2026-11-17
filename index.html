@@ -198,6 +198,7 @@ h1{font-size:32px;font-weight:800} h2{font-size:20px}
 }
 @media (prefers-reduced-motion:reduce){.btn{transition:none}}
 
+.champ input.code{text-align:center;letter-spacing:.5em;padding-left:.5em;font:800 34px var(--f-titre);min-height:76px}
 /* ===== Modules ajoutés : profil et score, épargne, assistance, marketplace ===== */
 textarea{font:inherit;color:inherit}
 .champ textarea{width:100%;min-height:110px;background:var(--surf);border:2px solid var(--trait);border-radius:16px;padding:12px 16px;font:400 19px/1.4 var(--f-texte);resize:vertical;outline:none}
@@ -295,9 +296,10 @@ const haut = (t, s, retour, marque = true) => `${marque?`<div class="marque"><sp
   <button class="bascule" data-act="lire">${ic('voix')}Écouter</button></header>`;
 const choix = (ch, vals, cur) => `<div class="choix">${vals.map(([v,l])=>`<button type="button" data-act="set" data-ch="${ch}" data-v="${esc(v)}" aria-pressed="${String(cur)===String(v)}">${esc(l)}</button>`).join('')}</div>`;
 const boites = masque => `<div class="boites" aria-label="Code à 4 chiffres">${[0,1,2,3].map(i=>`<i class="${S.saisie[i]?'on':''}">${S.saisie[i]?(masque?'•':S.saisie[i]):''}</i>`).join('')}</div>`;
+const codeChamp = (masque, lib) => `<label class="champ"><span>${lib}</span><input class="code" type="${masque?'password':'text'}" data-code inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="${masque?'off':'one-time-code'}" value="${esc(S.saisie)}"></label>`;
 const pave = () => `<div class="pave">${[1,2,3,4,5,6,7,8,9].map(k=>`<button type="button" data-act="touche" data-k="${k}">${k}</button>`).join('')}<span></span><button type="button" data-act="touche" data-k="0">0</button><button type="button" data-act="touche" data-k="eff" aria-label="Effacer">${ic('eff','g')}</button></div>`;
 const champ = (lib, f, extra='') => `<label class="champ"><span>${lib}</span><input type="text" data-f="${f}" value="${esc(S.tmp[f]||'')}" ${extra}></label>`;
-const telChamp = (lib, f) => `<label class="champ"><span>${lib}</span><div class="tel"><b>+221</b><input type="tel" data-f="${f}" inputmode="numeric" maxlength="12" autocomplete="tel-national" placeholder="77 123 45 67" value="${esc(S.tmp[f]||'')}"></div></label>`;
+const telChamp = (lib, f) => `<label class="champ"><span>${lib}</span><div class="tel"><b>+221</b><input type="tel" data-f="${f}" inputmode="numeric" maxlength="12" autocomplete="tel-national" value="${esc(S.tmp[f]||'')}"></div></label>`;
 const err = () => `<p class="err" role="alert">${esc(S.erreur)}</p>`;
 
 /* ===== Écrans d'entrée ===== */
@@ -327,21 +329,21 @@ function vInscription(){
       ${err()}<button class="btn" data-act="etape1">${ic('envoi')}Recevoir mon code SMS</button></div></div>`;
   }
   if (S.etape === 2){
-    LECT = 'Un code à 4 chiffres a été envoyé par SMS. Tape-le avec les grands chiffres, puis appuie sur Valider mon code.';
+    LECT = 'Un code à 4 chiffres a été envoyé par SMS. Tape-le avec le clavier, puis appuie sur Valider mon code.';
     return `<div class="col">${haut('Code reçu par SMS','Étape 2 sur 3','data-act="etape" data-v="1"')}<div class="m">
-      <p style="margin-top:20px">Code envoyé au <b>+221 ${esc(T.tel9)}</b>. Démonstration : tape 4 chiffres au choix.</p>
-      ${boites(false)}${pave()}${err()}<button class="btn" data-act="valider">${ic('check')}Valider mon code</button></div></div>`;
+      <p style="margin-top:20px">Code envoyé au <b>+221 ${esc(T.tel9)}</b>.</p>
+      ${codeChamp(false,'Code reçu par SMS')}${err()}<button class="btn" data-act="valider">${ic('check')}Valider mon code</button></div></div>`;
   }
   LECT = T.pin1 ? 'Retape ton code secret pour être sûr.' : 'Crée ton code secret à 4 chiffres. Tu l’utiliseras pour entrer. Ne le dis à personne.';
   return `<div class="col">${haut(T.pin1?'Retape ton code secret':'Crée ton code secret','Étape 3 sur 3','data-act="etape" data-v="2"')}<div class="m">
     <p style="margin-top:20px">${T.pin1?'Retape les mêmes 4 chiffres.':'Choisis 4 chiffres faciles à retenir, mais que personne ne devine.'}</p>
-    ${boites(true)}${pave()}${err()}<button class="btn" data-act="valider">${ic('check')}${T.pin1?'Créer mon compte':'Continuer'}</button></div></div>`;
+    ${codeChamp(true,T.pin1?'Retape ton code secret':'Ton code secret')}${err()}<button class="btn" data-act="valider">${ic('check')}${T.pin1?'Créer mon compte':'Continuer'}</button></div></div>`;
 }
 function vConnexion(){
   LECT = 'Écris ton numéro de téléphone, puis tape ton code secret à 4 chiffres.';
   return `<div class="col">${haut('Me connecter','',RETOUR_ACC)}<div class="m">
     ${telChamp('Numéro de téléphone','tel')}
-    <div class="champ"><span>Code secret</span></div>${boites(true)}${pave()}${err()}
+    ${codeChamp(true,'Code secret')}${err()}
     <div class="pile"><button class="btn" data-act="valider">${ic('envoi')}Entrer</button>
     <button class="btn sec" data-act="vers" data-v="inscription">Créer un compte</button></div></div></div>`;
 }
@@ -439,7 +441,6 @@ function vInvest(){
       <div class="cases" aria-hidden="true">${Array.from({length:v.places},(_,i)=>`<i class="${i<v.pris?'on':''}"></i>`).join('')}</div>
       <div class="pile" style="margin-top:12px">${btn}</div></div>`; }).join('');
   return `<div class="col">${haut('Investir en groupe','Groupes ouverts')}
-    <div class="avert">Exemples fictifs de démonstration. Aucun rendement n’est garanti et l’application ne garde pas l’argent. Ce n’est pas un conseil financier.</div>
     ${items}
     <div class="m"><div class="pile" style="margin-top:22px"><button class="btn" data-act="creer" data-t="invest">${u.premium?ic('plus'):ic('cadenas')}Créer un groupe d’investissement</button></div></div></div>`;
 }
@@ -486,6 +487,8 @@ function render(){
   const h = e==='accueil' ? vAccueil() : e==='inscription' ? vInscription() : e==='connexion' ? vConnexion() : vApp();
   $('app').innerHTML = h + (UI.feuille ? vFeuille() : '');
   save();
+  const cd = document.querySelector('input[data-code]');
+  if (cd){ const t = document.querySelector('input[data-f="tel"]'); (t && !t.value ? t : cd).focus({preventScroll:true}); }
 }
 
 /* ===== Logique ===== */
@@ -526,7 +529,7 @@ const ACT = {
     if(S.saisie.length!==4)return S.erreur='Tape les 4 chiffres.';
     if(S.ecran==='connexion'){
       const t=(T.tel||'').replace(/\D/g,''),c=S.comptes[t];
-      if(!c||c.pin!==S.saisie)return S.erreur='Numéro ou code incorrect.';
+      if(!c||c.pin!==S.saisie){S.saisie='';return S.erreur='Numéro ou code incorrect.'}
       Object.assign(S,{tel:t,ecran:'app',onglet:'tontines',vue:'liste',tmp:{},saisie:'',erreur:''});return;
     }
     if(S.etape===2){S.etape=3;S.saisie='';S.erreur='';return}
@@ -607,7 +610,11 @@ document.addEventListener('click', e => {
   const r = f(a); if (typeof r === 'string') S.erreur = r;
   render(); if (nav) window.scrollTo(0,0);
 });
-document.addEventListener('input', e => { const f = e.target.dataset && e.target.dataset.f; if (f) S.tmp[f] = e.target.value; });
+document.addEventListener('input', e => {
+  const d = e.target.dataset || {}; if (d.f) S.tmp[d.f] = e.target.value;
+  if (d.code !== undefined){ S.saisie = e.target.value.replace(/\D/g,'').slice(0,4); e.target.value = S.saisie; S.erreur = ''; }
+});
+document.addEventListener('keydown', e => { if (e.key==='Enter' && e.target.dataset && e.target.dataset.code!==undefined){ const b = document.querySelector('[data-act="valider"]'); if (b) b.click(); } });
 render();
 </script>
 <script>
@@ -857,7 +864,7 @@ const PROJETS = [
 ];
 function vMarket(){
   const mk = S.tmp.mk || 'tous', L = PROJETS.filter(p=>mk==='tous'||p.sec===mk), x = X();
-  LECT = 'Marketplace de projets. Des projets immobiliers, d’entreprise ou d’agriculture, portés par des opérateurs vérifiés. Ce sont des exemples fictifs. Aucun rendement n’est garanti.';
+  LECT = 'Marketplace de projets. Des projets immobiliers, d’entreprise ou d’agriculture, portés par des opérateurs vérifiés.';
   const cartes = L.map(p => `<div class="bl"><h2>${esc(p.nom)}</h2><div class="tags"><span class="tag">${SEC[p.sec][0]}</span><span class="tag">${esc(p.lieu)}</span><span class="tag">${p.duree}</span></div>
     <p class="fin">${esc(p.op)} <span class="st paye">${ic('check')}Vérifié</span></p>
     <div class="jauge" role="img" aria-label="${pour(p.col,p.obj)} pour cent collectés"><i style="width:${pour(p.col,p.obj)}%"></i></div>
@@ -865,7 +872,6 @@ function vMarket(){
     <div class="pile" style="margin-top:12px"><button class="btn sec" data-act="sous" data-k="projet" data-o="invest" data-id="${p.id}">${ic('envoi')}Voir le projet</button></div></div>`).join('');
   const dem = x.mises.map(d => `<div class="row"><div class="n">${ic('check','g')}</div><div class="c">${esc(d.nom)}<small>Mise envisagée ${F(d.mise)}, via ${esc(d.acteur)}</small></div><div class="d fin">${esc(d.d)}</div></div>`).join('');
   return `<div class="col">${haut('Marketplace','Projets d’opérateurs vérifiés',ret('','invest'))}
-    <div class="avert"><p>Exemples fictifs de démonstration. TDDK met en relation : il ne collecte et ne distribue aucun fonds. Aucun rendement n’est garanti et tu peux perdre ta mise.</p></div>
     <div class="m"><div class="champ" style="margin-top:16px"><span>Secteur</span>${choix('mk',[['tous','Tous'],['immo','Immobilier'],['ent','Entrepreneuriat'],['agri','Agriculture']],mk)}</div></div>
     ${cartes || '<p class="m">Aucun projet dans ce secteur.</p>'}
     ${x.mises.length?`<div class="titre"><h2>Mes demandes</h2></div>${dem}`:''}</div>`;
